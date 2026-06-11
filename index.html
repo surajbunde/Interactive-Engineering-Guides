@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Interactive Engineering Guides</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0d0f14;
+  --bg2: #13161e;
+  --border: #2a2f3e;
+  --text: #e8eaf0;
+  --text2: #9aa0b4;
+  --text3: #636880;
+  --accent: #6C63FF;
+  --accent2: #8B85FF;
+  --green: #2DD4BF;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Sora', sans-serif;
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 24px;
+}
+.hero {
+  text-align: center;
+  max-width: 700px;
+  margin-bottom: 60px;
+}
+.hero-badge {
+  display: inline-block;
+  background: #6C63FF22;
+  border: 1px solid var(--accent);
+  color: var(--accent2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 999px;
+  margin-bottom: 24px;
+}
+.hero h1 {
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  background: linear-gradient(135deg, #fff 30%, #9aa0b4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+}
+.hero p {
+  font-size: 18px;
+  color: var(--text2);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+.guides {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  max-width: 900px;
+  width: 100%;
+  margin-bottom: 60px;
+}
+.guide-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  transition: all 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.guide-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+.guide-card h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.guide-card p {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.guide-card .status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.guide-card .status.free {
+  background: #0d2926;
+  border: 1px solid #1a4a44;
+  color: var(--green);
+}
+.guide-card .status.coming-soon {
+  background: #271f0a;
+  border: 1px solid #4a3810;
+  color: #F59E0B;
+}
+.footer {
+  text-align: center;
+  padding: 32px 24px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text3);
+  width: 100%;
+  max-width: 900px;
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">Interactive Learning</div>
+  <h1>Engineering Guides</h1>
+  <p>A collection of interactive study guides designed to help engineers learn complex backend and distributed systems topics through visual explanations, architecture diagrams, and real-world examples.</p>
+</div>
+
+<div class="guides">
+  <a href="kafka-guide.html" class="guide-card">
+    <h2>Apache Kafka: Beginner to Pro</h2>
+    <p>Complete visual guide covering core concepts, internals, partitioning, ISR, system design patterns, and a Spring Boot E2E walkthrough.</p>
+    <span class="status free">FREE</span>
+  </a>
+  
+  <div class="guide-card" style="opacity: 0.6; pointer-events: none;">
+    <h2>System Design Guide</h2>
+    <p>Comprehensive guide to system design interviews and production engineering patterns.</p>
+    <span class="status coming-soon">COMING SOON</span>
+  </div>
+  
+  <div class="guide-card" style="opacity: 0.6; pointer-events: none;">
+    <h2>Redis / Valkey</h2>
+    <p>Deep dive into Redis data structures, persistence, clustering, and real-world use cases.</p>
+    <span class="status coming-soon">IN PROGRESS</span>
+  </div>
+  
+  <div class="guide-card" style="opacity: 0.6; pointer-events: none;">
+    <h2>JVM Internals</h2>
+    <p>Understanding garbage collection, memory models, JIT compilation, and performance tuning.</p>
+    <span class="status coming-soon">PLANNED</span>
+  </div>
+</div>
+
+<div class="footer">
+  Created by Suraj Bunde | Interactive Engineering Guides
+</div>
+
+</body>
+</html>
