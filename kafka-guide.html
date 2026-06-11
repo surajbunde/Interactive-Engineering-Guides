@@ -1,0 +1,1977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kafka: Beginner to Pro — Interview & System Design Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0d0f14;
+  --bg2: #13161e;
+  --bg3: #1a1e28;
+  --bg4: #21263380;
+  --border: #2a2f3e;
+  --border2: #353b4d;
+  --text: #e8eaf0;
+  --text2: #9aa0b4;
+  --text3: #636880;
+  --accent: #6C63FF;
+  --accent2: #8B85FF;
+  --accent-glow: #6C63FF22;
+  --green: #2DD4BF;
+  --green-bg: #0d2926;
+  --green-border: #1a4a44;
+  --amber: #F59E0B;
+  --amber-bg: #271f0a;
+  --amber-border: #4a3810;
+  --red: #F87171;
+  --red-bg: #220e0e;
+  --red-border: #451515;
+  --blue: #60A5FA;
+  --blue-bg: #0d1a2e;
+  --blue-border: #1a3050;
+  --coral: #FB923C;
+  --coral-bg: #1f1008;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Sora', sans-serif;
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, #0d0f14 0%, #111422 50%, #0d0f14 100%);
+  padding: 60px 40px 50px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 300px;
+  background: radial-gradient(ellipse, #6C63FF18 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-block;
+  background: var(--accent-glow);
+  border: 1px solid var(--accent);
+  color: var(--accent2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 999px;
+  margin-bottom: 20px;
+}
+.hero h1 {
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  background: linear-gradient(135deg, #fff 30%, #9aa0b4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 14px;
+}
+.hero p {
+  font-size: 16px;
+  color: var(--text2);
+  max-width: 560px;
+  margin: 0 auto 28px;
+  line-height: 1.6;
+}
+.progress-bar {
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  height: 6px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+.progress-label {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 8px;
+  text-align: center;
+}
+/* NAV */
+.nav-container {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #0d0f14ee;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0 24px;
+}
+.nav::-webkit-scrollbar { display: none; }
+.nav-btn {
+  flex-shrink: 0;
+  padding: 14px 18px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text3);
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+.nav-btn:hover { color: var(--text2); }
+.nav-btn.active { color: var(--accent2); border-bottom-color: var(--accent); }
+/* LAYOUT */
+.layout {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+.section { display: none; }
+.section.active { display: block; }
+/* CARDS */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 20px;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.card-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.card h2 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.card h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.card p {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+.card p:last-child { margin-bottom: 0; }
+/* CALLOUT */
+.callout {
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin: 14px 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  border-left: 3px solid;
+}
+.callout.green { background: var(--green-bg); border-color: var(--green); color: #7ee8db; }
+.callout.amber { background: var(--amber-bg); border-color: var(--amber); color: #fbbf24; }
+.callout.red   { background: var(--red-bg);   border-color: var(--red);   color: #fca5a5; }
+.callout.blue  { background: var(--blue-bg);  border-color: var(--blue);  color: #93c5fd; }
+.callout.purple{ background: var(--accent-glow); border-color: var(--accent); color: var(--accent2); }
+.callout strong { font-weight: 600; }
+/* CODE */
+pre {
+  background: #090b10;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  overflow-x: auto;
+  margin: 14px 0;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+  tab-size: 2;
+}
+code { font-family: var(--mono); font-size: 12.5px; }
+.kw   { color: #c084fc; font-weight: 500; }
+.kw2  { color: #818cf8; }
+.str  { color: #86efac; }
+.num  { color: #fb923c; }
+.cmt  { color: #4b5563; font-style: italic; }
+.cls  { color: #67e8f9; }
+.fn   { color: #fde68a; }
+.ann  { color: #f9a8d4; }
+.inline-code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: var(--coral);
+}
+/* TABS */
+.tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+.tab-btn {
+  padding: 6px 14px;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+/* DIAGRAM SVG WRAPPER */
+.diagram-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin: 16px 0;
+  overflow-x: auto;
+}
+/* BADGE */
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.badge.green { background: var(--green-bg); border: 1px solid var(--green-border); color: var(--green); }
+.badge.amber { background: var(--amber-bg); border: 1px solid var(--amber-border); color: var(--amber); }
+.badge.red   { background: var(--red-bg);   border: 1px solid var(--red-border);   color: var(--red); }
+.badge.blue  { background: var(--blue-bg);  border: 1px solid var(--blue-border);  color: var(--blue); }
+.badge.purple{ background: var(--accent-glow); border: 1px solid var(--accent); color: var(--accent2); }
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 700px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 28px; }
+  .hero { padding: 40px 20px 36px; }
+}
+/* STAT PILL */
+.stat-pill {
+  display: flex; flex-direction: column; align-items: center;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 12px;
+  text-align: center;
+}
+.stat-pill .num-big { font-size: 26px; font-weight: 700; color: var(--accent2); }
+.stat-pill .label   { font-size: 12px; color: var(--text3); margin-top: 4px; }
+/* QA ACCORDION */
+.qa-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.qa-q {
+  width: 100%;
+  background: var(--bg3);
+  border: none;
+  text-align: left;
+  padding: 15px 18px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.15s;
+}
+.qa-q:hover { background: var(--bg4); }
+.qa-q .arrow { color: var(--text3); transition: transform 0.2s; flex-shrink: 0; }
+.qa-item.open .qa-q .arrow { transform: rotate(90deg); }
+.qa-a {
+  display: none;
+  padding: 16px 18px;
+  background: var(--bg2);
+  font-size: 13.5px;
+  color: var(--text2);
+  line-height: 1.7;
+  border-top: 1px solid var(--border);
+}
+.qa-item.open .qa-a { display: block; }
+/* STEP INDICATOR */
+.step-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.step-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.step-content h4 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.step-content p  { font-size: 13.5px; color: var(--text2); line-height: 1.65; }
+/* COMPARISON TABLE */
+.comp-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.comp-table th {
+  background: var(--bg3);
+  color: var(--text2);
+  font-weight: 600;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.comp-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: top;
+}
+.comp-table tr:last-child td { border-bottom: none; }
+.comp-table tr:nth-child(even) td { background: var(--bg3)40; }
+/* PARTITION VIZ */
+.partition-viz {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: #090b10;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 14px 0;
+}
+.p-row { display: flex; align-items: center; gap: 8px; }
+.p-label { font-size: 12px; color: var(--text3); font-family: var(--mono); min-width: 90px; }
+.p-blocks { display: flex; gap: 4px; flex-wrap: wrap; }
+.p-block {
+  width: 38px; height: 32px;
+  border-radius: 5px;
+  border: 1px solid;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s;
+  position: relative;
+}
+.p-block:hover { transform: translateY(-2px); }
+.p-block.c0 { background: #0d1a2e; border-color: #1a3050; color: #60A5FA; }
+.p-block.c1 { background: #0d2926; border-color: #1a4a44; color: #2DD4BF; }
+.p-block.c2 { background: #1f1008; border-color: #3a2010; color: #FB923C; }
+.p-block.c3 { background: #1a1330; border-color: #2e2050; color: #c084fc; }
+/* INTERACTIVE PRODUCER/CONSUMER */
+.sim-container {
+  background: #090b10;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin: 16px 0;
+}
+.sim-controls {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center;
+}
+.sim-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sim-btn:hover { background: var(--bg4); border-color: var(--accent); }
+.sim-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.sim-btn.primary:hover { background: var(--accent2); }
+.sim-log {
+  height: 180px;
+  overflow-y: auto;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.8;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+.log-entry { display: flex; gap: 10px; }
+.log-time  { color: var(--text3); min-width: 60px; }
+.log-src   { min-width: 80px; font-weight: 500; }
+.log-src.prod { color: var(--blue); }
+.log-src.cons { color: var(--green); }
+.log-src.kafka{ color: var(--amber); }
+.log-msg { color: var(--text); }
+/* ARCHITECTURE DIAGRAM */
+.arch-svg { width: 100%; max-width: 700px; display: block; margin: 0 auto; }
+/* FLOW ANIMATION */
+@keyframes flowPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+.flow-dot { animation: flowPulse 1.5s ease-in-out infinite; }
+
+/* ISR VISUALIZER */
+.isr-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 14px 0;
+}
+.broker-box {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  text-align: center;
+}
+.broker-box.leader {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+.broker-box.follower { border-color: var(--border2); }
+.broker-box.failed  { border-color: var(--red-border); background: var(--red-bg); opacity: 0.7; }
+.broker-title { font-size: 12px; font-weight: 600; margin-bottom: 8px; color: var(--text2); }
+.broker-box.leader .broker-title { color: var(--accent2); }
+.broker-box.failed .broker-title  { color: var(--red); }
+.offset-list { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+.offset-list .synced { color: var(--green); }
+
+/* SECTION TITLE */
+.sec-title {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.sec-subtitle {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+/* HIGHLIGHT */
+.hl { color: var(--accent2); font-weight: 600; }
+.hl-green { color: var(--green); font-weight: 600; }
+.hl-amber { color: var(--amber); font-weight: 600; }
+.hl-red { color: var(--red); font-weight: 600; }
+
+/* TAG ROW */
+.tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+
+/* SCROLL PROGRESS */
+.done-mark {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border2);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.done-mark.checked { background: var(--green); border-color: var(--green); color: #fff; }
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding: 32px 24px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text3);
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">Interview & System Design</div>
+  <h1>Apache Kafka<br/>Beginner to Pro</h1>
+  <p>A complete, visual guide — core concepts, internals, partitioning, ISR, system design patterns, and a Spring Boot E2E walkthrough.</p>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-label" id="progressLabel">0 of 7 sections visited</div>
+</div>
+
+<div class="nav-container">
+  <nav class="nav" id="mainNav">
+    <button class="nav-btn active" onclick="showSection(0)">① What is Kafka?</button>
+    <button class="nav-btn" onclick="showSection(1)">② Core Concepts</button>
+    <button class="nav-btn" onclick="showSection(2)">③ Partitions & Offsets</button>
+    <button class="nav-btn" onclick="showSection(3)">④ Internals (ISR, Replication)</button>
+    <button class="nav-btn" onclick="showSection(4)">⑤ Producers & Consumers</button>
+    <button class="nav-btn" onclick="showSection(5)">⑥ System Design</button>
+    <button class="nav-btn" onclick="showSection(6)">⑦ Interview Q&A</button>
+  </nav>
+</div>
+
+<div class="layout">
+
+<!-- ===================== SECTION 0: WHAT IS KAFKA ===================== -->
+<div class="section active" id="sec-0">
+  <div class="sec-title">What is Apache Kafka?</div>
+  <p class="sec-subtitle">Start from zero. Understand the problem Kafka solves before touching any code.</p>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:#1a1330">🤔</div>
+      <h2>The Problem Kafka Solves</h2>
+    </div>
+    <p>Imagine you have 10 services. Each service needs to send data to 5 other services. That's <strong>50 direct connections</strong> — a maintenance nightmare. Every new service multiplies the complexity.</p>
+    <p>Kafka introduces a <span class="hl">central, durable event log</span> that all services write to and read from. Instead of 50 connections, you have <strong>N + M</strong> connections (producers + consumers).</p>
+    <div class="callout green">
+      <strong>Real analogy:</strong> Think of Kafka like a <strong>newspaper printing press</strong>. Writers (producers) submit articles once. The press (Kafka) stores and prints them. Millions of readers (consumers) pick up their copy independently — at their own pace, from any point in time.
+    </div>
+  </div>
+
+  <!-- Architecture SVG -->
+  <div class="diagram-wrap">
+    <svg class="arch-svg" viewBox="0 0 680 320" role="img">
+      <title>Before vs After Kafka architecture</title>
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <!-- Labels -->
+      <text x="160" y="28" text-anchor="middle" font-family="Sora" font-size="13" fill="#9aa0b4" font-weight="600">WITHOUT KAFKA</text>
+      <text x="520" y="28" text-anchor="middle" font-family="Sora" font-size="13" fill="#9aa0b4" font-weight="600">WITH KAFKA</text>
+      <!-- Divider -->
+      <line x1="340" y1="20" x2="340" y2="300" stroke="#2a2f3e" stroke-width="1" stroke-dasharray="4 4"/>
+
+      <!-- WITHOUT: mesh mess -->
+      <g opacity="0.9">
+        <!-- Services as circles -->
+        <circle cx="160" cy="90" r="22" fill="#0d1a2e" stroke="#1a3050" stroke-width="1"/>
+        <text x="160" y="94" text-anchor="middle" font-family="Sora" font-size="10" fill="#60A5FA">Svc A</text>
+        <circle cx="80"  cy="170" r="22" fill="#0d2926" stroke="#1a4a44" stroke-width="1"/>
+        <text x="80" y="174" text-anchor="middle" font-family="Sora" font-size="10" fill="#2DD4BF">Svc B</text>
+        <circle cx="240" cy="170" r="22" fill="#1a1330" stroke="#2e2050" stroke-width="1"/>
+        <text x="240" y="174" text-anchor="middle" font-family="Sora" font-size="10" fill="#c084fc">Svc C</text>
+        <circle cx="100" cy="260" r="22" fill="#1f1008" stroke="#3a2010" stroke-width="1"/>
+        <text x="100" y="264" text-anchor="middle" font-family="Sora" font-size="10" fill="#FB923C">Svc D</text>
+        <circle cx="200" cy="260" r="22" fill="#220e0e" stroke="#451515" stroke-width="1"/>
+        <text x="200" y="264" text-anchor="middle" font-family="Sora" font-size="10" fill="#F87171">Svc E</text>
+        <!-- Mess of arrows -->
+        <line x1="144" y1="107" x2="96" y2="153"  stroke="#F87171" stroke-width="0.8" opacity="0.5" marker-end="url(#arr)"/>
+        <line x1="176" y1="107" x2="224" y2="153"  stroke="#F87171" stroke-width="0.8" opacity="0.5" marker-end="url(#arr)"/>
+        <line x1="96"  y1="187" x2="120" y2="242"  stroke="#F87171" stroke-width="0.8" opacity="0.5" marker-end="url(#arr)"/>
+        <line x1="224" y1="187" x2="196" y2="242"  stroke="#F87171" stroke-width="0.8" opacity="0.5" marker-end="url(#arr)"/>
+        <line x1="160" y1="112" x2="112" y2="242"  stroke="#F87171" stroke-width="0.8" opacity="0.4" marker-end="url(#arr)"/>
+        <line x1="80"  y1="192" x2="185" y2="243"  stroke="#F87171" stroke-width="0.8" opacity="0.4" marker-end="url(#arr)"/>
+        <line x1="224" y1="158" x2="97"  y2="170"  stroke="#F87171" stroke-width="0.8" opacity="0.3" marker-end="url(#arr)"/>
+        <line x1="200" y1="238" x2="122" y2="238"  stroke="#F87171" stroke-width="0.8" opacity="0.3" marker-end="url(#arr)"/>
+        <text x="160" y="305" text-anchor="middle" font-family="Sora" font-size="11" fill="#F87171">Tightly coupled, fragile</text>
+      </g>
+
+      <!-- WITH KAFKA: star topology -->
+      <g>
+        <!-- Kafka bus -->
+        <rect x="440" y="140" width="160" height="40" rx="10" fill="#1a1330" stroke="#6C63FF" stroke-width="1.5"/>
+        <text x="520" y="164" text-anchor="middle" font-family="Sora" font-size="12" fill="#8B85FF" font-weight="600">Apache Kafka</text>
+        <!-- Producers left -->
+        <rect x="388" y="65"  width="52" height="28" rx="6" fill="#0d1a2e" stroke="#1a3050"/>
+        <text x="414" y="83" text-anchor="middle" font-family="Sora" font-size="10" fill="#60A5FA">Prod A</text>
+        <rect x="388" y="149" width="52" height="28" rx="6" fill="#0d2926" stroke="#1a4a44"/>
+        <text x="414" y="167" text-anchor="middle" font-family="Sora" font-size="10" fill="#2DD4BF">Prod B</text>
+        <rect x="388" y="230" width="52" height="28" rx="6" fill="#1f1008" stroke="#3a2010"/>
+        <text x="414" y="248" text-anchor="middle" font-family="Sora" font-size="10" fill="#FB923C">Prod C</text>
+        <!-- Consumers right -->
+        <rect x="600" y="65"  width="56" height="28" rx="6" fill="#1a1330" stroke="#2e2050"/>
+        <text x="628" y="83" text-anchor="middle" font-family="Sora" font-size="10" fill="#c084fc">Cons A</text>
+        <rect x="600" y="149" width="56" height="28" rx="6" fill="#0d1a2e" stroke="#1a3050"/>
+        <text x="628" y="167" text-anchor="middle" font-family="Sora" font-size="10" fill="#60A5FA">Cons B</text>
+        <rect x="600" y="230" width="56" height="28" rx="6" fill="#220e0e" stroke="#451515"/>
+        <text x="628" y="248" text-anchor="middle" font-family="Sora" font-size="10" fill="#F87171">Cons C</text>
+        <!-- Arrows to Kafka -->
+        <line x1="440" y1="79"  x2="441" y2="140" stroke="#2DD4BF" stroke-width="1" opacity="0.6" marker-end="url(#arr)"/>
+        <line x1="440" y1="160" x2="440" y2="160" stroke="#2DD4BF" stroke-width="0"/>
+        <line x1="440" y1="165" x2="440" y2="165" stroke="#2DD4BF" stroke-width="0"/>
+        <line x1="441" y1="155" x2="441" y2="155" stroke="#2DD4BF" stroke-width="0"/>
+        <!-- simplified arrows -->
+        <line x1="440" y1="159" x2="440" y2="159" stroke-width="0"/>
+        <path d="M440 79 L440 142" stroke="#2DD4BF" stroke-width="1" fill="none" opacity="0.6" marker-end="url(#arr)"/>
+        <path d="M440 160 L440 158" stroke-width="0"/>
+        <path d="M441 162 L441 162" stroke-width="0"/>
+        <path d="M440 163 L440 163" stroke-width="0"/>
+        <path d="M440 165 L440 165" stroke-width="0"/>
+        <line x1="440" y1="160" x2="440" y2="158" stroke-width="0"/>
+        <path d="M440 80 L440 142" stroke="#2DD4BF" stroke-width="1" opacity="0.6" fill="none" marker-end="url(#arr)"/>
+        <path d="M440 165 L440 156" stroke="#60A5FA" stroke-width="1" opacity="0.6" fill="none"/>
+        <path d="M440 242 L440 180" stroke="#FB923C" stroke-width="1" opacity="0.6" fill="none" marker-end="url(#arr)"/>
+        <!-- from kafka to consumers -->
+        <path d="M600 79 L599 140" stroke="#c084fc" stroke-width="1" opacity="0.6" fill="none" marker-end="url(#arr)"/>
+        <path d="M600 165 L599 158" stroke="#60A5FA" stroke-width="1" opacity="0.6" fill="none"/>
+        <path d="M600 242 L599 180" stroke="#F87171" stroke-width="1" opacity="0.6" fill="none" marker-end="url(#arr)"/>
+        <text x="520" y="305" text-anchor="middle" font-family="Sora" font-size="11" fill="#2DD4BF">Decoupled, scalable, durable</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:#0d2926">⚡</div>
+      <h2>When Should You Use Kafka?</h2>
+    </div>
+    <div class="grid-2">
+      <div>
+        <div class="callout green"><strong>✅ Use Kafka when:</strong><br/>• High-throughput event streaming (millions/sec)<br/>• Decoupling microservices<br/>• Event sourcing / audit logs<br/>• Real-time analytics pipelines<br/>• Multi-consumer fanout</div>
+      </div>
+      <div>
+        <div class="callout red"><strong>❌ Don't use Kafka when:</strong><br/>• Simple job queues (use RabbitMQ)<br/>• Request/reply RPC patterns<br/>• Very low message volume (&lt;1k/min)<br/>• You need complex routing logic<br/>• Team can't manage infrastructure</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Kafka at Scale — Real Numbers</h3>
+    <div class="grid-3" style="margin-top: 12px;">
+      <div class="stat-pill"><span class="num-big">1M+</span><span class="label">msgs/sec per broker</span></div>
+      <div class="stat-pill"><span class="num-big">7 days</span><span class="label">default retention</span></div>
+      <div class="stat-pill"><span class="num-big">ms</span><span class="label">end-to-end latency</span></div>
+    </div>
+    <div class="callout blue" style="margin-top: 14px;"><strong>Who uses it?</strong> LinkedIn (where Kafka was born), Netflix, Uber, Airbnb, Twitter, and thousands more. LinkedIn processes over 7 trillion messages per day on Kafka.</div>
+  </div>
+</div>
+
+<!-- ===================== SECTION 1: CORE CONCEPTS ===================== -->
+<div class="section" id="sec-1">
+  <div class="sec-title">Core Concepts</div>
+  <p class="sec-subtitle">The building blocks you must understand cold before any interview.</p>
+
+  <!-- Visual concept map -->
+  <div class="diagram-wrap">
+    <svg class="arch-svg" viewBox="0 0 680 260" role="img">
+      <title>Kafka core concepts diagram</title>
+      <defs>
+        <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <!-- Producer -->
+      <rect x="20" y="100" width="100" height="60" rx="10" fill="#0d1a2e" stroke="#1a3050" stroke-width="1"/>
+      <text x="70" y="127" text-anchor="middle" font-family="Sora" font-size="12" fill="#60A5FA" font-weight="600">Producer</text>
+      <text x="70" y="145" text-anchor="middle" font-family="Sora" font-size="10" fill="#4a6080">Publishes events</text>
+
+      <!-- Broker / Topic box -->
+      <rect x="164" y="30" width="340" height="200" rx="14" fill="#13161e" stroke="#2a2f3e" stroke-width="1"/>
+      <text x="334" y="55" text-anchor="middle" font-family="Sora" font-size="11" fill="#636880" font-weight="600">BROKER (Topic: orders)</text>
+      <!-- Partition 0 -->
+      <rect x="184" y="70" width="300" height="44" rx="6" fill="#0d2926" stroke="#1a4a44" stroke-width="0.8"/>
+      <text x="196" y="90" font-family="Sora" font-size="10" fill="#2DD4BF" font-weight="600">Partition 0</text>
+      <rect x="250" y="77" width="32" height="30" rx="4" fill="#0d2926" stroke="#1a4a44"/><text x="266" y="97" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#2DD4BF">0</text>
+      <rect x="286" y="77" width="32" height="30" rx="4" fill="#0d2926" stroke="#1a4a44"/><text x="302" y="97" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#2DD4BF">1</text>
+      <rect x="322" y="77" width="32" height="30" rx="4" fill="#0d2926" stroke="#1a4a44"/><text x="338" y="97" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#2DD4BF">2</text>
+      <rect x="358" y="77" width="32" height="30" rx="4" fill="#1a4a44" stroke="#2DD4BF"/><text x="374" y="97" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#fff">3→</text>
+      <!-- Partition 1 -->
+      <rect x="184" y="124" width="300" height="44" rx="6" fill="#1a1330" stroke="#2e2050" stroke-width="0.8"/>
+      <text x="196" y="144" font-family="Sora" font-size="10" fill="#c084fc" font-weight="600">Partition 1</text>
+      <rect x="250" y="131" width="32" height="30" rx="4" fill="#1a1330" stroke="#2e2050"/><text x="266" y="151" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#c084fc">0</text>
+      <rect x="286" y="131" width="32" height="30" rx="4" fill="#1a1330" stroke="#2e2050"/><text x="302" y="151" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#c084fc">1</text>
+      <rect x="322" y="131" width="32" height="30" rx="4" fill="#2e2050" stroke="#c084fc"/><text x="338" y="151" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#fff">2→</text>
+      <!-- Partition 2 -->
+      <rect x="184" y="178" width="300" height="36" rx="6" fill="#1f1008" stroke="#3a2010" stroke-width="0.8"/>
+      <text x="196" y="200" font-family="Sora" font-size="10" fill="#FB923C" font-weight="600">Partition 2</text>
+      <rect x="250" y="184" width="32" height="24" rx="4" fill="#1f1008" stroke="#3a2010"/><text x="266" y="200" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#FB923C">0</text>
+      <rect x="286" y="184" width="32" height="24" rx="4" fill="#3a2010" stroke="#FB923C"/><text x="302" y="200" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#fff">1→</text>
+
+      <!-- Consumer Group -->
+      <rect x="556" y="60" width="104" height="140" rx="10" fill="#0d2226" stroke="#1a4a44" stroke-width="1" stroke-dasharray="4 3"/>
+      <text x="608" y="82" text-anchor="middle" font-family="Sora" font-size="10" fill="#2DD4BF" font-weight="600">Consumer</text>
+      <text x="608" y="95" text-anchor="middle" font-family="Sora" font-size="10" fill="#2DD4BF" font-weight="600">Group</text>
+      <rect x="568" y="104" width="80" height="26" rx="6" fill="#0d2926" stroke="#1a4a44"/><text x="608" y="121" text-anchor="middle" font-family="Sora" font-size="10" fill="#2DD4BF">Consumer 1</text>
+      <rect x="568" y="136" width="80" height="26" rx="6" fill="#0d2926" stroke="#1a4a44"/><text x="608" y="153" text-anchor="middle" font-family="Sora" font-size="10" fill="#2DD4BF">Consumer 2</text>
+      <rect x="568" y="168" width="80" height="26" rx="6" fill="#0d2926" stroke="#1a4a44"/><text x="608" y="185" text-anchor="middle" font-family="Sora" font-size="10" fill="#2DD4BF">Consumer 3</text>
+
+      <!-- Arrows -->
+      <path d="M120 130 L163 130" stroke="#60A5FA" stroke-width="1.2" fill="none" opacity="0.8" marker-end="url(#arr2)"/>
+      <path d="M504 92 L555 117" stroke="#2DD4BF" stroke-width="1" fill="none" opacity="0.6" marker-end="url(#arr2)"/>
+      <path d="M504 146 L555 150" stroke="#2DD4BF" stroke-width="1" fill="none" opacity="0.6" marker-end="url(#arr2)"/>
+      <path d="M504 196 L555 180" stroke="#2DD4BF" stroke-width="1" fill="none" opacity="0.6" marker-end="url(#arr2)"/>
+
+      <!-- Offset labels -->
+      <text x="464" y="90" text-anchor="middle" font-family="Sora" font-size="9" fill="#636880">offset 3</text>
+      <text x="464" y="148" text-anchor="middle" font-family="Sora" font-size="9" fill="#636880">offset 2</text>
+      <text x="464" y="198" text-anchor="middle" font-family="Sora" font-size="9" fill="#636880">offset 1</text>
+    </svg>
+  </div>
+
+  <!-- Concept Cards -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:#0d2926">📋</div>
+        <h2>Topic</h2>
+      </div>
+      <p>A <span class="hl-green">Topic</span> is a named, ordered, immutable log of events. Think of it as a database table — but append-only and time-ordered.</p>
+      <div class="callout green">Events in a topic are <strong>never deleted on consumption</strong>. Multiple consumers read the same events independently. Retention is time or size based.</div>
+      <pre><code><span class="cmt">// Creating a topic programmatically in Java</span>
+<span class="cls">AdminClient</span> admin = <span class="cls">AdminClient</span>.<span class="fn">create</span>(props);
+<span class="cls">NewTopic</span> topic = <span class="kw">new</span> <span class="cls">NewTopic</span>(
+    <span class="str">"orders"</span>,   <span class="cmt">// topic name</span>
+    <span class="num">3</span>,          <span class="cmt">// partitions</span>
+    (<span class="kw">short</span>) <span class="num">2</span>   <span class="cmt">// replication factor</span>
+);
+admin.<span class="fn">createTopics</span>(<span class="cls">List</span>.<span class="fn">of</span>(topic));</code></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:#1a1330">🔢</div>
+        <h2>Offset</h2>
+      </div>
+      <p>An <span class="hl">Offset</span> is a unique, sequential ID for each message within a partition. Offsets are <strong>per-partition</strong> — not global across the topic.</p>
+      <div class="callout purple">Consumers commit their offset to track progress. If a consumer crashes, it resumes from the last committed offset — no data loss.</div>
+      <pre><code><span class="cmt">// Manually committing offset after processing</span>
+<span class="ann">@KafkaListener</span>(topics = <span class="str">"orders"</span>)
+<span class="kw">public void</span> <span class="fn">consume</span>(<span class="cls">ConsumerRecord</span>&lt;<span class="cls">String</span>, <span class="cls">String</span>&gt; record,
+                    <span class="cls">Acknowledgment</span> ack) {
+    <span class="fn">processOrder</span>(record.<span class="fn">value</span>());
+    ack.<span class="fn">acknowledge</span>(); <span class="cmt">// commit offset</span>
+}</code></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:#0d1a2e">🖥️</div>
+        <h2>Broker</h2>
+      </div>
+      <p>A <span class="hl" style="color:var(--blue)">Broker</span> is a single Kafka server. It stores partitions, handles reads/writes, and replicates data to other brokers. A <strong>Kafka cluster</strong> is a group of brokers.</p>
+      <div class="callout blue">Production setups use <strong>minimum 3 brokers</strong> for fault tolerance. KRaft mode (Kafka 3.x+) removes ZooKeeper dependency entirely.</div>
+      <pre><code><span class="cmt"># broker.properties key settings</span>
+broker.id=0
+log.dirs=/var/kafka/logs
+num.partitions=3
+default.replication.factor=3
+min.insync.replicas=2</code></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:#0d2926">👥</div>
+        <h2>Consumer Group</h2>
+      </div>
+      <p>A <span class="hl-green">Consumer Group</span> is a set of consumers sharing work. Each partition is assigned to exactly ONE consumer in the group at a time — ensuring ordered, parallel processing.</p>
+      <div class="callout green">If you have 4 partitions and 2 consumers, each consumer handles 2 partitions. Adding a 5th consumer? It sits idle — you can't exceed partition count!</div>
+      <pre><code><span class="cls">Properties</span> props = <span class="kw">new</span> <span class="cls">Properties</span>();
+props.<span class="fn">put</span>(<span class="str">"group.id"</span>, <span class="str">"order-processing-group"</span>);
+props.<span class="fn">put</span>(<span class="str">"auto.offset.reset"</span>, <span class="str">"earliest"</span>);
+<span class="cmt">// All consumers with same group.id share work</span></code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SECTION 2: PARTITIONS & OFFSETS ===================== -->
+<div class="section" id="sec-2">
+  <div class="sec-title">Partitions & Offsets — Deep Dive</div>
+  <p class="sec-subtitle">This is the most important concept for scaling Kafka. Master it.</p>
+
+  <div class="card">
+    <h3>How Partitioning Works</h3>
+    <p>When a producer sends a message, Kafka decides which partition it goes to using a <span class="hl">partitioning strategy</span>. This is crucial for both ordering guarantees and load distribution.</p>
+
+    <div class="tabs" id="partTabBtns">
+      <button class="tab-btn active" onclick="switchPartTab(0)">Key-based</button>
+      <button class="tab-btn" onclick="switchPartTab(1)">Round-robin</button>
+      <button class="tab-btn" onclick="switchPartTab(2)">Custom</button>
+    </div>
+
+    <div id="partTab0" class="tab-panel active">
+      <div class="callout green"><strong>Key-based partitioning:</strong> <code>partition = hash(key) % numPartitions</code>. Same key ALWAYS goes to same partition — guarantees ordering per key. Use for: user events (key=userId), order events (key=orderId).</div>
+      <pre><code><span class="cls">ProducerRecord</span>&lt;<span class="cls">String</span>, <span class="cls">String</span>&gt; record =
+    <span class="kw">new</span> <span class="cls">ProducerRecord</span>&lt;&gt;(
+        <span class="str">"orders"</span>,         <span class="cmt">// topic</span>
+        <span class="str">"user-123"</span>,       <span class="cmt">// KEY → same partition always!</span>
+        orderJson         <span class="cmt">// value</span>
+    );
+producer.<span class="fn">send</span>(record);</code></pre>
+    </div>
+    <div id="partTab1" class="tab-panel">
+      <div class="callout blue"><strong>Round-robin (no key):</strong> Messages distributed evenly across partitions. No ordering guarantees. Use for: metrics, logs where global order doesn't matter.</div>
+      <pre><code><span class="cmt">// No key = round-robin distribution</span>
+<span class="cls">ProducerRecord</span>&lt;<span class="cls">String</span>, <span class="cls">String</span>&gt; record =
+    <span class="kw">new</span> <span class="cls">ProducerRecord</span>&lt;&gt;(
+        <span class="str">"metrics"</span>,        <span class="cmt">// topic</span>
+        <span class="kw">null</span>,             <span class="cmt">// no key!</span>
+        metricJson        <span class="cmt">// value</span>
+    );
+producer.<span class="fn">send</span>(record);</code></pre>
+    </div>
+    <div id="partTab2" class="tab-panel">
+      <div class="callout amber"><strong>Custom Partitioner:</strong> Implement logic yourself. Use for: geographic routing, hot-key avoidance, business-specific distribution rules.</div>
+      <pre><code><span class="kw">public class</span> <span class="cls">RegionPartitioner</span>
+    <span class="kw">implements</span> <span class="cls">Partitioner</span> {
+  <span class="ann">@Override</span>
+  <span class="kw">public int</span> <span class="fn">partition</span>(<span class="cls">String</span> topic, <span class="cls">Object</span> key,
+      <span class="kw">byte</span>[] keyBytes, <span class="cls">Object</span> value,
+      <span class="kw">byte</span>[] valueBytes, <span class="cls">Cluster</span> cluster) {
+    <span class="cls">String</span> region = key.<span class="fn">toString</span>();
+    <span class="kw">return switch</span> (region) {
+      <span class="kw">case</span> <span class="str">"US"</span> -> <span class="num">0</span>;
+      <span class="kw">case</span> <span class="str">"EU"</span> -> <span class="num">1</span>;
+      <span class="kw">default</span> -> <span class="num">2</span>;
+    };
+  }
+}</code></pre>
+    </div>
+  </div>
+
+  <!-- Interactive Partition Visualizer -->
+  <div class="card">
+    <h3>Interactive Partition Explorer</h3>
+    <p>Click a message block to see its metadata. See how keys determine partition assignment.</p>
+    <div class="partition-viz" id="partViz">
+      <div class="p-row">
+        <div class="p-label">Partition 0</div>
+        <div class="p-blocks" id="pb0"></div>
+      </div>
+      <div class="p-row">
+        <div class="p-label">Partition 1</div>
+        <div class="p-blocks" id="pb1"></div>
+      </div>
+      <div class="p-row">
+        <div class="p-label">Partition 2</div>
+        <div class="p-blocks" id="pb2"></div>
+      </div>
+    </div>
+    <div id="msgDetail" style="font-family:var(--mono);font-size:12px;color:var(--text2);padding:10px;background:#090b10;border-radius:8px;border:1px solid var(--border);min-height:50px;">
+      👆 Click a message block above to inspect it
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button class="sim-btn primary" onclick="addMessage()">➕ Produce Message</button>
+      <button class="sim-btn" onclick="resetMessages()">↺ Reset</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>How Many Partitions Should You Use?</h3>
+    <p>This is a common interview question. There's no magic formula, but here's the mental model:</p>
+    <div class="callout amber">
+      <strong>Rule of thumb:</strong> target throughput ÷ throughput per partition<br/>
+      <code>partitions = max(throughput_needed / single_partition_throughput, consumers_needed)</code>
+    </div>
+    <div class="step-row">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Start with consumer count</h4>
+        <p>You can't have more active consumers in a group than partitions. Plan for your max parallelism first.</p>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Consider throughput</h4>
+        <p>Each partition handles ~10-100 MB/s depending on message size and broker. If you need 1 GB/s, you need at least 10–100 partitions.</p>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Don't over-partition</h4>
+        <p>Each partition costs memory, file handles, and replication overhead. More isn't always better. Over-partitioning increases leader election time.</p>
+      </div>
+    </div>
+    <div class="callout red"><strong>⚠️ Interview trap:</strong> "Can I reduce partitions?" — NO! You can only increase partitions, never decrease. Decreasing would break key-based routing. Plan ahead.</div>
+  </div>
+</div>
+
+<!-- ===================== SECTION 3: INTERNALS ===================== -->
+<div class="section" id="sec-3">
+  <div class="sec-title">Kafka Internals — How It Really Works</div>
+  <p class="sec-subtitle">Replication, ISR, leader election, log compaction — the internals that make Kafka reliable.</p>
+
+  <div class="card">
+    <h3>Replication — Never Lose Data</h3>
+    <p>Every partition has one <span class="hl">leader</span> and zero or more <span class="hl-green">followers</span>. Producers and consumers always talk to the leader. Followers replicate data from the leader continuously.</p>
+
+    <div class="isr-container" id="isrViz">
+      <div class="broker-box leader" id="broker0">
+        <div class="broker-title">🟣 Broker 0 — LEADER</div>
+        <div class="offset-list">
+          <div class="synced">offset 0 ✓</div>
+          <div class="synced">offset 1 ✓</div>
+          <div class="synced">offset 2 ✓</div>
+          <div class="synced">offset 3 ✓ (latest)</div>
+        </div>
+      </div>
+      <div class="broker-box follower" id="broker1">
+        <div class="broker-title">Broker 1 — Follower</div>
+        <div class="offset-list">
+          <div class="synced">offset 0 ✓</div>
+          <div class="synced">offset 1 ✓</div>
+          <div class="synced">offset 2 ✓</div>
+          <div style="color:var(--amber)">offset 3 ⏳</div>
+        </div>
+      </div>
+      <div class="broker-box follower" id="broker2">
+        <div class="broker-title">Broker 2 — Follower</div>
+        <div class="offset-list">
+          <div class="synced">offset 0 ✓</div>
+          <div class="synced">offset 1 ✓</div>
+          <div class="synced">offset 2 ✓</div>
+          <div class="synced">offset 3 ✓</div>
+        </div>
+      </div>
+    </div>
+    <div class="sim-controls">
+      <button class="sim-btn primary" onclick="failLeader()">💥 Fail Leader (Broker 0)</button>
+      <button class="sim-btn" onclick="resetISR()">↺ Reset Cluster</button>
+    </div>
+    <div id="isrLog" class="callout blue" style="margin-top:10px;font-size:13px;">
+      Cluster healthy. Broker 0 is leader. RF=3, ISR=[0,1,2]
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>ISR — In-Sync Replicas (Critical Concept!)</h3>
+    <p>The <span class="hl">ISR (In-Sync Replica Set)</span> is the list of replicas that are fully caught up with the leader. This is Kafka's durability guarantee mechanism.</p>
+
+    <div class="callout amber">
+      <strong>acks=all</strong> (or acks=-1): Producer waits for ALL ISR members to acknowledge. This is the safest setting — no data loss even if the leader crashes immediately after.<br/><br/>
+      <strong>min.insync.replicas=2</strong>: Kafka refuses to accept writes if fewer than 2 replicas are in sync. Prevents "zombie leader" data loss.
+    </div>
+    <pre><code><span class="cmt">// Producer durability settings</span>
+props.<span class="fn">put</span>(<span class="str">"acks"</span>, <span class="str">"all"</span>);              <span class="cmt">// wait for all ISR</span>
+props.<span class="fn">put</span>(<span class="str">"retries"</span>, <span class="cls">Integer</span>.<span class="fn">MAX_VALUE</span>); <span class="cmt">// retry forever</span>
+props.<span class="fn">put</span>(<span class="str">"enable.idempotence"</span>, <span class="str">"true"</span>);  <span class="cmt">// exactly-once</span>
+props.<span class="fn">put</span>(<span class="str">"max.in.flight.requests.per.connection"</span>, <span class="str">"5"</span>);</code></pre>
+
+    <table class="comp-table" style="margin-top:14px;">
+      <tr><th>acks setting</th><th>Durability</th><th>Latency</th><th>Use case</th></tr>
+      <tr><td><span class="inline-code">acks=0</span></td><td><span class="badge red">Fire & forget</span></td><td>Lowest</td><td>Metrics, logs (OK to lose)</td></tr>
+      <tr><td><span class="inline-code">acks=1</span></td><td><span class="badge amber">Leader only</span></td><td>Medium</td><td>Default — balanced</td></tr>
+      <tr><td><span class="inline-code">acks=all</span></td><td><span class="badge green">All ISR</span></td><td>Higher</td><td>Financial, orders, critical</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Log Compaction — Keep Only Latest per Key</h3>
+    <p>Kafka's default <span class="hl">retention policy</span> deletes old messages by time or size. But <span class="hl-amber">log compaction</span> is different — it keeps the <strong>latest value per key</strong>, deleting old versions.</p>
+
+    <div class="diagram-wrap" style="padding:12px;">
+      <svg viewBox="0 0 640 160" width="100%" role="img">
+        <title>Log compaction before and after</title>
+        <text x="160" y="22" text-anchor="middle" font-family="Sora" font-size="11" fill="#636880">BEFORE COMPACTION</text>
+        <text x="480" y="22" text-anchor="middle" font-family="Sora" font-size="11" fill="#636880">AFTER COMPACTION</text>
+        <line x1="320" y1="15" x2="320" y2="155" stroke="#2a2f3e" stroke-width="1" stroke-dasharray="3 3"/>
+        <!-- Before -->
+        <g font-family="JetBrains Mono" font-size="10">
+          <!-- user-1 entries -->
+          <rect x="20"  y="40" width="52" height="36" rx="5" fill="#0d2926" stroke="#1a4a44"/>
+          <text x="46" y="55" text-anchor="middle" fill="#2DD4BF">user-1</text>
+          <text x="46" y="70" text-anchor="middle" fill="#636880">alice</text>
+
+          <rect x="78"  y="40" width="52" height="36" rx="5" fill="#1a1330" stroke="#2e2050"/>
+          <text x="104" y="55" text-anchor="middle" fill="#c084fc">user-2</text>
+          <text x="104" y="70" text-anchor="middle" fill="#636880">bob</text>
+
+          <rect x="136" y="40" width="52" height="36" rx="5" fill="#0d2926" stroke="#1a4a44" opacity="0.5"/>
+          <text x="162" y="55" text-anchor="middle" fill="#2DD4BF">user-1</text>
+          <text x="162" y="70" text-anchor="middle" fill="#636880">alice2</text>
+
+          <rect x="194" y="40" width="52" height="36" rx="5" fill="#1f1008" stroke="#3a2010"/>
+          <text x="220" y="55" text-anchor="middle" fill="#FB923C">user-3</text>
+          <text x="220" y="70" text-anchor="middle" fill="#636880">carol</text>
+
+          <rect x="252" y="40" width="52" height="36" rx="5" fill="#0d2926" stroke="#1a4a44"/>
+          <text x="278" y="55" text-anchor="middle" fill="#2DD4BF">user-1</text>
+          <text x="278" y="70" text-anchor="middle" fill="#636880">alice3</text>
+
+          <text x="162" y="118" text-anchor="middle" font-family="Sora" font-size="10" fill="#F87171">3 entries for user-1 (only last matters)</text>
+          <!-- X marks on old entries -->
+          <text x="162" y="52" text-anchor="middle" fill="#F87171" font-size="14">✕</text>
+          <text x="162" y="68" text-anchor="middle" fill="#F87171" font-size="14">✕</text>
+        </g>
+        <!-- After compaction -->
+        <g font-family="JetBrains Mono" font-size="10">
+          <rect x="348" y="40" width="52" height="36" rx="5" fill="#1a1330" stroke="#2e2050"/>
+          <text x="374" y="55" text-anchor="middle" fill="#c084fc">user-2</text>
+          <text x="374" y="70" text-anchor="middle" fill="#636880">bob</text>
+
+          <rect x="408" y="40" width="52" height="36" rx="5" fill="#1f1008" stroke="#3a2010"/>
+          <text x="434" y="55" text-anchor="middle" fill="#FB923C">user-3</text>
+          <text x="434" y="70" text-anchor="middle" fill="#636880">carol</text>
+
+          <rect x="468" y="40" width="52" height="36" rx="5" fill="#0d2926" stroke="#2DD4BF" stroke-width="1.5"/>
+          <text x="494" y="55" text-anchor="middle" fill="#2DD4BF">user-1</text>
+          <text x="494" y="70" text-anchor="middle" fill="#fff">alice3</text>
+
+          <text x="430" y="118" text-anchor="middle" font-family="Sora" font-size="10" fill="#2DD4BF">Latest value per key is preserved</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="callout purple"><strong>When to use log compaction:</strong> User profile state, inventory levels, configuration data — any "current state" topic where you only care about the latest value. Enable with <span class="inline-code">cleanup.policy=compact</span></div>
+  </div>
+
+  <div class="card">
+    <h3>KRaft Mode (Kafka 3.x+) — No More ZooKeeper</h3>
+    <p>Before Kafka 3.0, ZooKeeper managed cluster metadata (leader election, broker registry). KRaft (Kafka Raft) replaces this with a built-in consensus mechanism — fewer moving parts, faster leader election, simpler operations.</p>
+    <div class="callout blue">KRaft is production-ready as of Kafka 3.3+ and is the <strong>default</strong> in Kafka 4.0. New projects should use KRaft mode.</div>
+    <div class="grid-2" style="margin-top:12px;">
+      <div class="callout amber"><strong>Old (ZooKeeper):</strong> Separate ZooKeeper cluster needed. Complex ops. Slow metadata propagation (~30s).</div>
+      <div class="callout green"><strong>New (KRaft):</strong> Built-in Raft consensus. Single process. Sub-second metadata propagation. Simpler deployment.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SECTION 4: PRODUCERS & CONSUMERS ===================== -->
+<div class="section" id="sec-4">
+  <div class="sec-title">Producers & Consumers — Java Code</div>
+  <p class="sec-subtitle">Hands-on Java examples covering everything you need for interviews and production.</p>
+
+  <div class="card">
+    <h3>Producer — Complete Java Example</h3>
+    <div class="tabs" id="prodTabBtns">
+      <button class="tab-btn active" onclick="switchProdTab(0)">Basic Producer</button>
+      <button class="tab-btn" onclick="switchProdTab(1)">With Serialization</button>
+      <button class="tab-btn" onclick="switchProdTab(2)">Async + Callback</button>
+    </div>
+    <div id="prodTab0" class="tab-panel active">
+      <pre><code><span class="kw">public class</span> <span class="cls">OrderProducer</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+        <span class="cls">Properties</span> props = <span class="kw">new</span> <span class="cls">Properties</span>();
+        props.<span class="fn">put</span>(<span class="str">"bootstrap.servers"</span>, <span class="str">"localhost:9092"</span>);
+        props.<span class="fn">put</span>(<span class="str">"key.serializer"</span>,
+            <span class="str">"org.apache.kafka.common.serialization.StringSerializer"</span>);
+        props.<span class="fn">put</span>(<span class="str">"value.serializer"</span>,
+            <span class="str">"org.apache.kafka.common.serialization.StringSerializer"</span>);
+        <span class="cmt">// Durability settings</span>
+        props.<span class="fn">put</span>(<span class="str">"acks"</span>, <span class="str">"all"</span>);
+        props.<span class="fn">put</span>(<span class="str">"retries"</span>, <span class="num">3</span>);
+        props.<span class="fn">put</span>(<span class="str">"enable.idempotence"</span>, <span class="str">"true"</span>);
+
+        <span class="kw">try</span> (<span class="cls">KafkaProducer</span>&lt;<span class="cls">String</span>, <span class="cls">String</span>&gt; producer =
+                <span class="kw">new</span> <span class="cls">KafkaProducer</span>&lt;&gt;(props)) {
+
+            <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i < <span class="num">10</span>; i++) {
+                <span class="cls">ProducerRecord</span>&lt;<span class="cls">String</span>, <span class="cls">String</span>&gt; record =
+                    <span class="kw">new</span> <span class="cls">ProducerRecord</span>&lt;&gt;(
+                        <span class="str">"orders"</span>,            <span class="cmt">// topic</span>
+                        <span class="str">"order-"</span> + i,       <span class="cmt">// key</span>
+                        <span class="str">"{\"id\":"</span> + i + <span class="str">"}"</span> <span class="cmt">// value</span>
+                    );
+                producer.<span class="fn">send</span>(record);
+            }
+        }
+    }
+}</code></pre>
+    </div>
+    <div id="prodTab1" class="tab-panel">
+      <pre><code><span class="cmt">// Custom serializer for domain objects</span>
+<span class="kw">public class</span> <span class="cls">JsonSerializer</span>&lt;<span class="cls">T</span>&gt; <span class="kw">implements</span> <span class="cls">Serializer</span>&lt;<span class="cls">T</span>&gt; {
+    <span class="kw">private final</span> <span class="cls">ObjectMapper</span> mapper = <span class="kw">new</span> <span class="cls">ObjectMapper</span>();
+
+    <span class="ann">@Override</span>
+    <span class="kw">public byte</span>[] <span class="fn">serialize</span>(<span class="cls">String</span> topic, <span class="cls">T</span> data) {
+        <span class="kw">try</span> {
+            <span class="kw">return</span> mapper.<span class="fn">writeValueAsBytes</span>(data);
+        } <span class="kw">catch</span> (<span class="cls">Exception</span> e) {
+            <span class="kw">throw new</span> <span class="cls">SerializationException</span>(e);
+        }
+    }
+}
+
+<span class="cmt">// Using it with an Order object</span>
+props.<span class="fn">put</span>(<span class="str">"value.serializer"</span>, <span class="cls">JsonSerializer</span>.<span class="kw">class</span>);
+<span class="cls">ProducerRecord</span>&lt;<span class="cls">String</span>, <span class="cls">Order</span>&gt; record =
+    <span class="kw">new</span> <span class="cls">ProducerRecord</span>&lt;&gt;(<span class="str">"orders"</span>, order.<span class="fn">getId</span>(), order);</code></pre>
+    </div>
+    <div id="prodTab2" class="tab-panel">
+      <pre><code><span class="cmt">// Async send with callback — know this for interviews!</span>
+producer.<span class="fn">send</span>(record, (metadata, exception) -> {
+    <span class="kw">if</span> (exception != <span class="kw">null</span>) {
+        log.<span class="fn">error</span>(<span class="str">"Failed to send: {}"</span>, exception.<span class="fn">getMessage</span>());
+        <span class="cmt">// handle retry or DLQ</span>
+    } <span class="kw">else</span> {
+        log.<span class="fn">info</span>(<span class="str">"Sent to partition={} offset={}"</span>,
+            metadata.<span class="fn">partition</span>(),
+            metadata.<span class="fn">offset</span>());
+    }
+});
+
+<span class="cmt">// For sync (blocking) confirmation:</span>
+<span class="cls">RecordMetadata</span> meta = producer.<span class="fn">send</span>(record).<span class="fn">get</span>();
+<span class="cmt">// .get() blocks until broker acks</span></code></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Consumer — Complete Java Example</h3>
+    <pre><code><span class="kw">public class</span> <span class="cls">OrderConsumer</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+        <span class="cls">Properties</span> props = <span class="kw">new</span> <span class="cls">Properties</span>();
+        props.<span class="fn">put</span>(<span class="str">"bootstrap.servers"</span>, <span class="str">"localhost:9092"</span>);
+        props.<span class="fn">put</span>(<span class="str">"group.id"</span>, <span class="str">"order-service-group"</span>);
+        props.<span class="fn">put</span>(<span class="str">"key.deserializer"</span>, <span class="str">"...StringDeserializer"</span>);
+        props.<span class="fn">put</span>(<span class="str">"value.deserializer"</span>, <span class="str">"...StringDeserializer"</span>);
+        props.<span class="fn">put</span>(<span class="str">"auto.offset.reset"</span>, <span class="str">"earliest"</span>); <span class="cmt">// start from beginning</span>
+        props.<span class="fn">put</span>(<span class="str">"enable.auto.commit"</span>, <span class="str">"false"</span>); <span class="cmt">// manual commit!</span>
+
+        <span class="kw">try</span> (<span class="cls">KafkaConsumer</span>&lt;<span class="cls">String</span>, <span class="cls">String</span>&gt; consumer =
+                <span class="kw">new</span> <span class="cls">KafkaConsumer</span>&lt;&gt;(props)) {
+
+            consumer.<span class="fn">subscribe</span>(<span class="cls">List</span>.<span class="fn">of</span>(<span class="str">"orders"</span>));
+
+            <span class="kw">while</span> (<span class="kw">true</span>) {
+                <span class="cls">ConsumerRecords</span>&lt;<span class="cls">String</span>, <span class="cls">String</span>&gt; records =
+                    consumer.<span class="fn">poll</span>(<span class="cls">Duration</span>.<span class="fn">ofMillis</span>(<span class="num">100</span>));
+
+                <span class="kw">for</span> (<span class="cls">ConsumerRecord</span>&lt;<span class="cls">String</span>, <span class="cls">String</span>&gt; record : records) {
+                    System.out.<span class="fn">printf</span>(
+                        <span class="str">"P:%d Offset:%d Key:%s Value:%s%n"</span>,
+                        record.<span class="fn">partition</span>(),
+                        record.<span class="fn">offset</span>(),
+                        record.<span class="fn">key</span>(),
+                        record.<span class="fn">value</span>()
+                    );
+                    <span class="fn">processOrder</span>(record.<span class="fn">value</span>());
+                }
+                <span class="cmt">// Commit AFTER processing (at-least-once semantics)</span>
+                consumer.<span class="fn">commitSync</span>();
+            }
+        }
+    }
+}</code></pre>
+    <div class="callout amber">
+      <strong>Delivery semantics — interview must-know:</strong><br/>
+      • <strong>At-most-once:</strong> commit before processing (can lose messages)<br/>
+      • <strong>At-least-once:</strong> commit after processing (can duplicate — most common)<br/>
+      • <strong>Exactly-once:</strong> requires idempotent consumer + transactions (hardest)
+    </div>
+  </div>
+
+  <!-- Live Simulator -->
+  <div class="card">
+    <h3>🔴 Live Producer/Consumer Simulator</h3>
+    <p>Simulate Kafka message flow — produce messages and watch consumers process them across partitions.</p>
+    <div class="sim-container">
+      <div class="sim-controls">
+        <button class="sim-btn primary" onclick="simProduce()">📤 Produce Message</button>
+        <button class="sim-btn" onclick="simProduce5()">📤 Produce 5</button>
+        <button class="sim-btn" onclick="simToggleConsume()">⏯ Toggle Consumer</button>
+        <button class="sim-btn" onclick="simClear()">✕ Clear</button>
+        <span style="font-size:12px;color:var(--text3);margin-left:8px">Group lag: <span id="simLag" style="color:var(--amber);font-family:var(--mono)">0</span></span>
+      </div>
+      <div class="sim-log" id="simLog">
+        <div class="log-entry"><span class="log-time">00:00:00</span><span class="log-src kafka">KAFKA</span><span class="log-msg">Cluster ready. Topic: orders (3 partitions)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SECTION 5: SYSTEM DESIGN ===================== -->
+<div class="section" id="sec-5">
+  <div class="sec-title">System Design Patterns with Kafka</div>
+  <p class="sec-subtitle">E-commerce Order Processing & Payment/Banking — with sharding diagrams.</p>
+
+  <div class="tabs" id="sdTabBtns">
+    <button class="tab-btn active" onclick="switchSDTab(0)">E-commerce Orders</button>
+    <button class="tab-btn" onclick="switchSDTab(1)">Payment & Banking</button>
+  </div>
+
+  <!-- E-COMMERCE TAB -->
+  <div id="sdTab0" class="tab-panel active">
+    <div class="card">
+      <h3>E-commerce Order Processing — Architecture</h3>
+      <p>Orders flow through multiple services: inventory check, payment, fulfillment, notification. Kafka decouples all of them with <span class="hl">event-driven choreography</span>.</p>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 680 380" width="100%" role="img">
+          <title>E-commerce order processing with Kafka</title>
+          <defs>
+            <marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+          <!-- API Gateway -->
+          <rect x="270" y="20" width="140" height="40" rx="8" fill="#1a1330" stroke="#6C63FF" stroke-width="1.5"/>
+          <text x="340" y="44" text-anchor="middle" font-family="Sora" font-size="12" fill="#8B85FF" font-weight="600">API Gateway</text>
+          <!-- Arrow down -->
+          <path d="M340 60 L340 90" stroke="#6C63FF" stroke-width="1" fill="none" marker-end="url(#arr3)"/>
+          <!-- Kafka Bus (orders topic) -->
+          <rect x="100" y="90" width="480" height="44" rx="10" fill="#13161e" stroke="#2DD4BF" stroke-width="1.5"/>
+          <text x="340" y="116" text-anchor="middle" font-family="Sora" font-size="12" fill="#2DD4BF" font-weight="600">Kafka  —  Topic: order-events</text>
+          <!-- Partitions inside -->
+          <rect x="120" y="100" width="60" height="24" rx="4" fill="#0d2926" stroke="#1a4a44"/>
+          <text x="150" y="116" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#2DD4BF">P0:userId</text>
+          <rect x="190" y="100" width="60" height="24" rx="4" fill="#0d2926" stroke="#1a4a44"/>
+          <text x="220" y="116" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#2DD4BF">P1:userId</text>
+          <rect x="260" y="100" width="60" height="24" rx="4" fill="#0d2926" stroke="#1a4a44"/>
+          <text x="290" y="116" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#2DD4BF">P2:userId</text>
+          <!-- Services consuming -->
+          <!-- Inventory Service -->
+          <rect x="30"  y="180" width="120" height="52" rx="8" fill="#0d2926" stroke="#1a4a44"/>
+          <text x="90" y="203" text-anchor="middle" font-family="Sora" font-size="11" fill="#2DD4BF" font-weight="600">Inventory Svc</text>
+          <text x="90" y="220" text-anchor="middle" font-family="Sora" font-size="10" fill="#4a8080">grp: inv-group</text>
+          <!-- Payment Service -->
+          <rect x="180" y="180" width="120" height="52" rx="8" fill="#1a1330" stroke="#6C63FF"/>
+          <text x="240" y="203" text-anchor="middle" font-family="Sora" font-size="11" fill="#8B85FF" font-weight="600">Payment Svc</text>
+          <text x="240" y="220" text-anchor="middle" font-family="Sora" font-size="10" fill="#4a4a80">grp: pay-group</text>
+          <!-- Fulfillment Service -->
+          <rect x="330" y="180" width="120" height="52" rx="8" fill="#1f1008" stroke="#3a2010"/>
+          <text x="390" y="203" text-anchor="middle" font-family="Sora" font-size="11" fill="#FB923C" font-weight="600">Fulfillment Svc</text>
+          <text x="390" y="220" text-anchor="middle" font-family="Sora" font-size="10" fill="#604020">grp: ful-group</text>
+          <!-- Notification Service -->
+          <rect x="480" y="180" width="120" height="52" rx="8" fill="#1a1330" stroke="#2e2050"/>
+          <text x="540" y="203" text-anchor="middle" font-family="Sora" font-size="11" fill="#c084fc" font-weight="600">Notification</text>
+          <text x="540" y="220" text-anchor="middle" font-family="Sora" font-size="10" fill="#4a3a60">grp: notif-group</text>
+
+          <!-- Arrows from Kafka to services -->
+          <path d="M160 134 L90 180" stroke="#2DD4BF" stroke-width="1" fill="none" opacity="0.7" marker-end="url(#arr3)"/>
+          <path d="M200 134 L240 180" stroke="#6C63FF" stroke-width="1" fill="none" opacity="0.7" marker-end="url(#arr3)"/>
+          <path d="M340 134 L390 180" stroke="#FB923C" stroke-width="1" fill="none" opacity="0.7" marker-end="url(#arr3)"/>
+          <path d="M460 134 L540 180" stroke="#c084fc" stroke-width="1" fill="none" opacity="0.7" marker-end="url(#arr3)"/>
+
+          <!-- Downstream topics -->
+          <rect x="130" y="270" width="420" height="36" rx="8" fill="#13161e" stroke="#60A5FA" stroke-width="1"/>
+          <text x="340" y="292" text-anchor="middle" font-family="Sora" font-size="11" fill="#60A5FA">Topic: payment-events  /  Topic: fulfillment-events</text>
+
+          <path d="M240 232 L280 270" stroke="#6C63FF" stroke-width="1" fill="none" opacity="0.5" marker-end="url(#arr3)"/>
+          <path d="M390 232 L390 270" stroke="#FB923C" stroke-width="1" fill="none" opacity="0.5" marker-end="url(#arr3)"/>
+
+          <!-- Analytics -->
+          <rect x="240" y="340" width="200" height="32" rx="8" fill="#271f0a" stroke="#4a3810"/>
+          <text x="340" y="360" text-anchor="middle" font-family="Sora" font-size="11" fill="#F59E0B">Analytics / Data Warehouse</text>
+          <path d="M340 306 L340 340" stroke="#60A5FA" stroke-width="1" fill="none" opacity="0.5" marker-end="url(#arr3)"/>
+        </svg>
+      </div>
+
+      <div class="callout green">
+        <strong>Key design decision: partition key = userId</strong><br/>
+        All events for the same user go to the same partition. This guarantees ordering — you'll never process "payment succeeded" before "order placed" for the same user.
+      </div>
+
+      <h3 style="margin-top: 20px;">Partitioning Strategy for E-commerce</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 680 200" width="100%" role="img">
+          <title>Partitioning sharding strategy for e-commerce</title>
+          <text x="340" y="22" text-anchor="middle" font-family="Sora" font-size="11" fill="#636880">How 6 users shard across 3 partitions (key = userId)</text>
+          <!-- Users row -->
+          <g font-family="Sora" font-size="11">
+            <rect x="20"  y="40" width="80" height="32" rx="6" fill="#0d1a2e" stroke="#1a3050"/>
+            <text x="60"  y="61" text-anchor="middle" fill="#60A5FA">user-1</text>
+            <rect x="110" y="40" width="80" height="32" rx="6" fill="#0d2926" stroke="#1a4a44"/>
+            <text x="150" y="61" text-anchor="middle" fill="#2DD4BF">user-2</text>
+            <rect x="200" y="40" width="80" height="32" rx="6" fill="#1f1008" stroke="#3a2010"/>
+            <text x="240" y="61" text-anchor="middle" fill="#FB923C">user-3</text>
+            <rect x="290" y="40" width="80" height="32" rx="6" fill="#1a1330" stroke="#2e2050"/>
+            <text x="330" y="61" text-anchor="middle" fill="#c084fc">user-4</text>
+            <rect x="380" y="40" width="80" height="32" rx="6" fill="#0d1a2e" stroke="#1a3050"/>
+            <text x="420" y="61" text-anchor="middle" fill="#60A5FA">user-5</text>
+            <rect x="470" y="40" width="80" height="32" rx="6" fill="#0d2926" stroke="#1a4a44"/>
+            <text x="510" y="61" text-anchor="middle" fill="#2DD4BF">user-6</text>
+          </g>
+          <!-- Hash label -->
+          <text x="340" y="108" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#636880">hash(userId) % 3</text>
+          <!-- Arrows suggesting partitioning -->
+          <line x1="60"  y1="72" x2="100" y2="138" stroke="#60A5FA" stroke-width="0.8" opacity="0.5"/>
+          <line x1="150" y1="72" x2="340" y2="138" stroke="#2DD4BF" stroke-width="0.8" opacity="0.5"/>
+          <line x1="240" y1="72" x2="580" y2="138" stroke="#FB923C" stroke-width="0.8" opacity="0.5"/>
+          <line x1="330" y1="72" x2="100" y2="138" stroke="#c084fc" stroke-width="0.8" opacity="0.5"/>
+          <line x1="420" y1="72" x2="340" y2="138" stroke="#60A5FA" stroke-width="0.8" opacity="0.5"/>
+          <line x1="510" y1="72" x2="580" y2="138" stroke="#2DD4BF" stroke-width="0.8" opacity="0.5"/>
+          <!-- Partitions -->
+          <rect x="20"  y="138" width="200" height="40" rx="8" fill="#0d1a2e" stroke="#60A5FA" stroke-width="1.2"/>
+          <text x="120" y="163" text-anchor="middle" font-family="Sora" font-size="11" fill="#60A5FA" font-weight="600">Partition 0: user-1, user-4</text>
+          <rect x="240" y="138" width="200" height="40" rx="8" fill="#0d2926" stroke="#2DD4BF" stroke-width="1.2"/>
+          <text x="340" y="163" text-anchor="middle" font-family="Sora" font-size="11" fill="#2DD4BF" font-weight="600">Partition 1: user-2, user-5</text>
+          <rect x="460" y="138" width="200" height="40" rx="8" fill="#1f1008" stroke="#FB923C" stroke-width="1.2"/>
+          <text x="560" y="163" text-anchor="middle" font-family="Sora" font-size="11" fill="#FB923C" font-weight="600">Partition 2: user-3, user-6</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Handling Hot Partitions (Skew)</h3>
+      <p>If one user generates 80% of traffic (think a VIP or a bot), one partition becomes a <span class="hl-red">hot partition</span> — a bottleneck. Solutions:</p>
+      <div class="grid-2">
+        <div class="callout amber"><strong>Salting the key:</strong> Append a random suffix to the key. <code>userId + "_" + random(0,4)</code>. Distributes load but breaks strict per-user ordering.</div>
+        <div class="callout blue"><strong>Dedicated partition:</strong> Use a custom partitioner that routes high-volume users to multiple dedicated partitions, others to a shared pool.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYMENT TAB -->
+  <div id="sdTab1" class="tab-panel">
+    <div class="card">
+      <h3>Payment & Banking — Critical Requirements</h3>
+      <div class="grid-3" style="margin-bottom: 16px;">
+        <div class="callout red" style="margin:0"><strong>No Duplicate Payments</strong><br/>Exactly-once required</div>
+        <div class="callout amber" style="margin:0"><strong>Ordered per Account</strong><br/>Balance can't go negative</div>
+        <div class="callout green" style="margin:0"><strong>Audit Trail</strong><br/>Every event forever</div>
+      </div>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 680 340" width="100%" role="img">
+          <title>Payment banking Kafka architecture</title>
+          <defs>
+            <marker id="arr4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+          <!-- Mobile/Web -->
+          <rect x="20" y="20" width="100" height="40" rx="8" fill="#0d1a2e" stroke="#1a3050"/>
+          <text x="70" y="44" text-anchor="middle" font-family="Sora" font-size="11" fill="#60A5FA">Mobile App</text>
+          <rect x="140" y="20" width="100" height="40" rx="8" fill="#0d1a2e" stroke="#1a3050"/>
+          <text x="190" y="44" text-anchor="middle" font-family="Sora" font-size="11" fill="#60A5FA">Web App</text>
+
+          <!-- Payment API -->
+          <rect x="260" y="10" width="160" height="56" rx="10" fill="#1a1330" stroke="#6C63FF" stroke-width="1.5"/>
+          <text x="340" y="36" text-anchor="middle" font-family="Sora" font-size="12" fill="#8B85FF" font-weight="600">Payment API</text>
+          <text x="340" y="54" text-anchor="middle" font-family="Sora" font-size="10" fill="#4a4a80">idempotency key check</text>
+
+          <path d="M120 40 L260 38" stroke="#60A5FA" stroke-width="1" fill="none" opacity="0.5" marker-end="url(#arr4)"/>
+          <path d="M240 40 L260 38" stroke="#60A5FA" stroke-width="1" fill="none" opacity="0.5" marker-end="url(#arr4)"/>
+
+          <!-- Kafka: payment-initiated -->
+          <rect x="60" y="110" width="560" height="40" rx="8" fill="#13161e" stroke="#2DD4BF"/>
+          <text x="340" y="134" text-anchor="middle" font-family="Sora" font-size="11" fill="#2DD4BF" font-weight="600">Topic: payment-initiated  (key = accountId, acks=all)</text>
+          <path d="M340 66 L340 110" stroke="#6C63FF" stroke-width="1" fill="none" opacity="0.7" marker-end="url(#arr4)"/>
+
+          <!-- Fraud Detection -->
+          <rect x="60"  y="190" width="140" height="48" rx="8" fill="#220e0e" stroke="#F87171"/>
+          <text x="130" y="211" text-anchor="middle" font-family="Sora" font-size="11" fill="#F87171" font-weight="600">Fraud Detect</text>
+          <text x="130" y="228" text-anchor="middle" font-family="Sora" font-size="10" fill="#604040">real-time ML</text>
+
+          <!-- Balance Check -->
+          <rect x="220" y="190" width="140" height="48" rx="8" fill="#271f0a" stroke="#F59E0B"/>
+          <text x="290" y="211" text-anchor="middle" font-family="Sora" font-size="11" fill="#F59E0B" font-weight="600">Balance Check</text>
+          <text x="290" y="228" text-anchor="middle" font-family="Sora" font-size="10" fill="#604020">ordered/account</text>
+
+          <!-- Payment Processor -->
+          <rect x="380" y="190" width="140" height="48" rx="8" fill="#0d2926" stroke="#2DD4BF"/>
+          <text x="450" y="211" text-anchor="middle" font-family="Sora" font-size="11" fill="#2DD4BF" font-weight="600">Payment Proc.</text>
+          <text x="450" y="228" text-anchor="middle" font-family="Sora" font-size="10" fill="#2a5a50">exactly-once</text>
+
+          <!-- Audit Log -->
+          <rect x="540" y="190" width="100" height="48" rx="8" fill="#1a1330" stroke="#c084fc"/>
+          <text x="590" y="211" text-anchor="middle" font-family="Sora" font-size="11" fill="#c084fc" font-weight="600">Audit Log</text>
+          <text x="590" y="228" text-anchor="middle" font-family="Sora" font-size="10" fill="#3a2a50">compacted</text>
+
+          <!-- Arrows from Kafka bus -->
+          <path d="M150 150 L130 190" stroke="#F87171" stroke-width="1" fill="none" opacity="0.7" marker-end="url(#arr4)"/>
+          <path d="M270 150 L290 190" stroke="#F59E0B" stroke-width="1" fill="none" opacity="0.7" marker-end="url(#arr4)"/>
+          <path d="M420 150 L450 190" stroke="#2DD4BF" stroke-width="1" fill="none" opacity="0.7" marker-end="url(#arr4)"/>
+          <path d="M560 150 L590 190" stroke="#c084fc" stroke-width="1" fill="none" opacity="0.7" marker-end="url(#arr4)"/>
+
+          <!-- payment-completed topic -->
+          <rect x="160" y="278" width="360" height="36" rx="8" fill="#13161e" stroke="#60A5FA"/>
+          <text x="340" y="300" text-anchor="middle" font-family="Sora" font-size="11" fill="#60A5FA">Topic: payment-completed / payment-failed</text>
+          <path d="M450 238 L380 278" stroke="#2DD4BF" stroke-width="1" fill="none" opacity="0.5" marker-end="url(#arr4)"/>
+          <path d="M130 238 L210 278" stroke="#F87171" stroke-width="1" fill="none" opacity="0.5" marker-end="url(#arr4)"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Partitioning Strategy for Banking</h3>
+      <p>In banking, <span class="hl-amber">ordering per account</span> is critical. A debit must be processed before the next credit check, or the balance could go negative.</p>
+
+      <div class="callout amber">
+        <strong>Partition key = accountId</strong><br/>
+        All transactions for account ACC-001 go to the same partition → processed in strict order → balance is always consistent.
+      </div>
+
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 680 180" width="100%" role="img">
+          <title>Banking account partitioning sharding</title>
+          <text x="340" y="22" text-anchor="middle" font-family="Sora" font-size="11" fill="#636880">Accounts shard by accountId — guarantees per-account ordering</text>
+          <!-- Accounts -->
+          <g font-family="Sora" font-size="10">
+            <rect x="10"  y="40" width="85" height="36" rx="6" fill="#0d1a2e" stroke="#1a3050"/>
+            <text x="52"  y="57" text-anchor="middle" fill="#60A5FA">ACC-001</text>
+            <text x="52"  y="70" text-anchor="middle" fill="#636880">$50k/day</text>
+
+            <rect x="105" y="40" width="85" height="36" rx="6" fill="#0d2926" stroke="#1a4a44"/>
+            <text x="147" y="57" text-anchor="middle" fill="#2DD4BF">ACC-002</text>
+            <text x="147" y="70" text-anchor="middle" fill="#636880">$2k/day</text>
+
+            <rect x="200" y="40" width="85" height="36" rx="6" fill="#1f1008" stroke="#3a2010"/>
+            <text x="242" y="57" text-anchor="middle" fill="#FB923C">ACC-003</text>
+            <text x="242" y="70" text-anchor="middle" fill="#636880">$100k/day</text>
+
+            <rect x="295" y="40" width="85" height="36" rx="6" fill="#1a1330" stroke="#2e2050"/>
+            <text x="337" y="57" text-anchor="middle" fill="#c084fc">ACC-004</text>
+            <text x="337" y="70" text-anchor="middle" fill="#636880">$8k/day</text>
+
+            <rect x="390" y="40" width="85" height="36" rx="6" fill="#0d1a2e" stroke="#1a3050"/>
+            <text x="432" y="57" text-anchor="middle" fill="#60A5FA">ACC-005</text>
+            <text x="432" y="70" text-anchor="middle" fill="#636880">$30k/day</text>
+
+            <rect x="485" y="40" width="85" height="36" rx="6" fill="#0d2926" stroke="#1a4a44"/>
+            <text x="527" y="57" text-anchor="middle" fill="#2DD4BF">ACC-006</text>
+            <text x="527" y="70" text-anchor="middle" fill="#636880">$5k/day</text>
+
+            <rect x="580" y="40" width="85" height="36" rx="6" fill="#1f1008" stroke="#3a2010"/>
+            <text x="622" y="57" text-anchor="middle" fill="#FB923C">ACC-007</text>
+            <text x="622" y="70" text-anchor="middle" fill="#636880">$200k/day</text>
+          </g>
+          <!-- Partition lines -->
+          <line x1="52"  y1="76" x2="80"  y2="128" stroke="#60A5FA" stroke-width="0.7" opacity="0.6"/>
+          <line x1="147" y1="76" x2="270" y2="128" stroke="#2DD4BF" stroke-width="0.7" opacity="0.6"/>
+          <line x1="242" y1="76" x2="470" y2="128" stroke="#FB923C" stroke-width="0.7" opacity="0.6"/>
+          <line x1="337" y1="76" x2="80"  y2="128" stroke="#c084fc" stroke-width="0.7" opacity="0.6"/>
+          <line x1="432" y1="76" x2="270" y2="128" stroke="#60A5FA" stroke-width="0.7" opacity="0.6"/>
+          <line x1="527" y1="76" x2="470" y2="128" stroke="#2DD4BF" stroke-width="0.7" opacity="0.6"/>
+          <line x1="622" y1="76" x2="80"  y2="128" stroke="#FB923C" stroke-width="0.7" opacity="0.6"/>
+          <!-- Partitions -->
+          <rect x="10"  y="128" width="160" height="40" rx="8" fill="#0d1a2e" stroke="#60A5FA" stroke-width="1.2"/>
+          <text x="90" y="153" text-anchor="middle" font-family="Sora" font-size="10" fill="#60A5FA">P0: ACC-001, 004, 007</text>
+          <rect x="185" y="128" width="160" height="40" rx="8" fill="#0d2926" stroke="#2DD4BF" stroke-width="1.2"/>
+          <text x="265" y="153" text-anchor="middle" font-family="Sora" font-size="10" fill="#2DD4BF">P1: ACC-002, 005</text>
+          <rect x="360" y="128" width="160" height="40" rx="8" fill="#1f1008" stroke="#FB923C" stroke-width="1.2"/>
+          <text x="440" y="153" text-anchor="middle" font-family="Sora" font-size="10" fill="#FB923C">P2: ACC-003, 006</text>
+          <!-- Hot partition warning -->
+          <text x="90" y="180" text-anchor="middle" font-family="Sora" font-size="9" fill="#F59E0B">⚠ ACC-007 hot!</text>
+        </svg>
+      </div>
+
+      <div class="callout red"><strong>Hot partition problem:</strong> ACC-007 does $200k/day — 10x more volume. Solution: dedicated partitions for high-volume accounts, detected at onboarding time via a custom partitioner.</div>
+
+      <h3 style="margin-top:16px">Exactly-Once for Payments</h3>
+      <pre><code><span class="cmt">// Producer with exactly-once semantics (transactions)</span>
+props.<span class="fn">put</span>(<span class="str">"transactional.id"</span>, <span class="str">"payment-service-1"</span>);
+props.<span class="fn">put</span>(<span class="str">"enable.idempotence"</span>, <span class="str">"true"</span>);
+props.<span class="fn">put</span>(<span class="str">"acks"</span>, <span class="str">"all"</span>);
+
+producer.<span class="fn">initTransactions</span>();
+<span class="kw">try</span> {
+    producer.<span class="fn">beginTransaction</span>();
+    producer.<span class="fn">send</span>(debitRecord);   <span class="cmt">// debit account A</span>
+    producer.<span class="fn">send</span>(creditRecord);  <span class="cmt">// credit account B</span>
+    producer.<span class="fn">commitTransaction</span>(); <span class="cmt">// atomic!</span>
+} <span class="kw">catch</span> (<span class="cls">ProducerFencedException</span> e) {
+    producer.<span class="fn">abortTransaction</span>(); <span class="cmt">// roll back both</span>
+}</code></pre>
+    </div>
+  </div>
+
+  <!-- Spring Boot Section -->
+  <div class="card" style="margin-top: 0;">
+    <h3>🍃 Spring Boot Microservice — E2E Setup</h3>
+    <p>Full Spring Boot integration. Covers config, producer, consumer, and Docker compose.</p>
+
+    <div class="tabs" id="sbTabBtns">
+      <button class="tab-btn active" onclick="switchSBTab(0)">application.yml</button>
+      <button class="tab-btn" onclick="switchSBTab(1)">Producer Service</button>
+      <button class="tab-btn" onclick="switchSBTab(2)">Consumer Service</button>
+      <button class="tab-btn" onclick="switchSBTab(3)">Docker Compose</button>
+    </div>
+
+    <div id="sbTab0" class="tab-panel active">
+      <pre><code><span class="cmt"># application.yml — Kafka Spring Boot config</span>
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: <span class="kw">true</span>
+        max.in.flight.requests.per.connection: <span class="num">5</span>
+    consumer:
+      group-id: order-service-group
+      auto-offset-reset: earliest
+      enable-auto-commit: <span class="kw">false</span>  <span class="cmt"># manual commits!</span>
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.example.model
+    listener:
+      ack-mode: MANUAL_IMMEDIATE  <span class="cmt"># commit after processing</span>
+
+<span class="cmt"># Topic config (auto-create in dev)</span>
+app:
+  kafka:
+    topic:
+      orders: orders
+      payments: payment-events
+      partitions: <span class="num">3</span>
+      replication-factor: <span class="num">1</span>  <span class="cmt"># 3 in prod</span></code></pre>
+    </div>
+
+    <div id="sbTab1" class="tab-panel">
+      <pre><code><span class="ann">@Service</span>
+<span class="ann">@RequiredArgsConstructor</span>
+<span class="kw">public class</span> <span class="cls">OrderProducerService</span> {
+
+    <span class="kw">private final</span> <span class="cls">KafkaTemplate</span>&lt;<span class="cls">String</span>, <span class="cls">OrderEvent</span>&gt; kafkaTemplate;
+
+    <span class="ann">@Value</span>(<span class="str">"${app.kafka.topic.orders}"</span>)
+    <span class="kw">private</span> <span class="cls">String</span> ordersTopic;
+
+    <span class="kw">public</span> <span class="cls">CompletableFuture</span>&lt;<span class="cls">SendResult</span>&lt;<span class="cls">String</span>, <span class="cls">OrderEvent</span>&gt;&gt;
+    <span class="fn">publishOrderCreated</span>(<span class="cls">Order</span> order) {
+
+        <span class="cls">OrderEvent</span> event = <span class="cls">OrderEvent</span>.<span class="fn">builder</span>()
+            .<span class="fn">orderId</span>(order.<span class="fn">getId</span>())
+            .<span class="fn">userId</span>(order.<span class="fn">getUserId</span>())
+            .<span class="fn">amount</span>(order.<span class="fn">getAmount</span>())
+            .<span class="fn">status</span>(<span class="str">"CREATED"</span>)
+            .<span class="fn">timestamp</span>(<span class="cls">Instant</span>.<span class="fn">now</span>())
+            .<span class="fn">build</span>();
+
+        <span class="cmt">// Key = userId ensures ordering per user</span>
+        <span class="kw">return</span> kafkaTemplate
+            .<span class="fn">send</span>(ordersTopic, order.<span class="fn">getUserId</span>(), event)
+            .<span class="fn">whenComplete</span>((result, ex) -> {
+                <span class="kw">if</span> (ex != <span class="kw">null</span>) {
+                    log.<span class="fn">error</span>(<span class="str">"Failed to publish order {}: {}"</span>,
+                        order.<span class="fn">getId</span>(), ex.<span class="fn">getMessage</span>());
+                } <span class="kw">else</span> {
+                    log.<span class="fn">info</span>(<span class="str">"Order {} sent to P:{} O:{}"</span>,
+                        order.<span class="fn">getId</span>(),
+                        result.<span class="fn">getRecordMetadata</span>().<span class="fn">partition</span>(),
+                        result.<span class="fn">getRecordMetadata</span>().<span class="fn">offset</span>());
+                }
+            });
+    }
+}</code></pre>
+    </div>
+
+    <div id="sbTab2" class="tab-panel">
+      <pre><code><span class="ann">@Component</span>
+<span class="ann">@Slf4j</span>
+<span class="kw">public class</span> <span class="cls">OrderEventConsumer</span> {
+
+    <span class="kw">private final</span> <span class="cls">PaymentService</span> paymentService;
+    <span class="kw">private final</span> <span class="cls">MeterRegistry</span> meterRegistry;
+
+    <span class="ann">@KafkaListener</span>(
+        topics = <span class="str">"${app.kafka.topic.orders}"</span>,
+        groupId = <span class="str">"${spring.kafka.consumer.group-id}"</span>,
+        concurrency = <span class="str">"3"</span>  <span class="cmt">// 3 threads = 3 partitions</span>
+    )
+    <span class="kw">public void</span> <span class="fn">handleOrderEvent</span>(
+        <span class="ann">@Payload</span> <span class="cls">OrderEvent</span> event,
+        <span class="ann">@Header</span>(<span class="cls">KafkaHeaders</span>.<span class="fn">RECEIVED_PARTITION</span>) <span class="kw">int</span> partition,
+        <span class="ann">@Header</span>(<span class="cls">KafkaHeaders</span>.<span class="fn">OFFSET</span>) <span class="kw">long</span> offset,
+        <span class="cls">Acknowledgment</span> ack
+    ) {
+        log.<span class="fn">info</span>(<span class="str">"Processing order {} from P:{} O:{}"</span>,
+            event.<span class="fn">getOrderId</span>(), partition, offset);
+        <span class="kw">try</span> {
+            paymentService.<span class="fn">initiatePayment</span>(event);
+            ack.<span class="fn">acknowledge</span>(); <span class="cmt">// commit only on success</span>
+            meterRegistry.<span class="fn">counter</span>(<span class="str">"kafka.orders.processed"</span>).<span class="fn">increment</span>();
+        } <span class="kw">catch</span> (<span class="cls">Exception</span> e) {
+            log.<span class="fn">error</span>(<span class="str">"Failed processing order {}"</span>,
+                event.<span class="fn">getOrderId</span>(), e);
+            <span class="cmt">// Don't ack — message will be retried</span>
+            <span class="cmt">// Or route to DLQ after N retries</span>
+        }
+    }
+}</code></pre>
+    </div>
+
+    <div id="sbTab3" class="tab-panel">
+      <pre><code><span class="cmt"># docker-compose.yml — Local Kafka dev setup</span>
+version: '<span class="num">3.8</span>'
+services:
+  kafka:
+    image: confluentinc/cp-kafka:<span class="num">7.5.0</span>
+    ports:
+      - <span class="str">"9092:9092"</span>
+    environment:
+      <span class="cmt"># KRaft mode (no ZooKeeper!)</span>
+      KAFKA_NODE_ID: <span class="num">1</span>
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:<span class="num">9092</span>,CONTROLLER://:<span class="num">9093</span>
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:<span class="num">9092</span>
+      KAFKA_CONTROLLER_QUORUM_VOTERS: <span class="num">1</span>@kafka:<span class="num">9093</span>
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: <span class="num">1</span>
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: <span class="str">"true"</span>
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - <span class="str">"8080:8080"</span>
+    environment:
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:<span class="num">9092</span>
+    depends_on:
+      - kafka</code></pre>
+      <div class="callout green" style="margin-top: 12px;"><strong>Tip:</strong> Run with <code>docker compose up -d</code> then open <code>http://localhost:8080</code> for Kafka UI. You can visually inspect topics, partitions, and messages.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SECTION 6: INTERVIEW Q&A ===================== -->
+<div class="section" id="sec-6">
+  <div class="sec-title">Interview Q&A</div>
+  <p class="sec-subtitle">The questions that actually get asked. Click each to reveal the model answer.</p>
+
+  <div class="grid-2" style="margin-bottom: 16px;">
+    <div class="stat-pill"><span class="num-big" style="color:var(--green)">25</span><span class="label">questions covered</span></div>
+    <div class="stat-pill"><span class="num-big" style="color:var(--amber)">5</span><span class="label">difficulty levels</span></div>
+  </div>
+
+  <div class="tabs" id="qaTabBtns">
+    <button class="tab-btn active" onclick="switchQATab(0)">🟢 Fundamentals</button>
+    <button class="tab-btn" onclick="switchQATab(1)">🟡 Intermediate</button>
+    <button class="tab-btn" onclick="switchQATab(2)">🔴 Advanced</button>
+    <button class="tab-btn" onclick="switchQATab(3)">🏗️ System Design</button>
+  </div>
+
+  <div id="qaTab0" class="tab-panel active" id="qaFundamentals">
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">What is Apache Kafka and why is it used?<span class="arrow">▶</span></button><div class="qa-a">Kafka is a distributed event streaming platform — a durable, ordered, append-only log of events. It's used for: (1) decoupling microservices via async event-driven communication, (2) high-throughput data pipelines processing millions of messages/sec, (3) event sourcing where every state change is an event, (4) real-time analytics. Unlike a traditional message queue (RabbitMQ), Kafka retains messages even after consumption — multiple consumers can read the same events independently.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">What is a Topic and how is it different from a Queue?<span class="arrow">▶</span></button><div class="qa-a">A Topic is an ordered, immutable log of events. Key differences from a queue: (1) <strong>Retention</strong> — Topics retain messages by time/size, queues delete after consumption. (2) <strong>Multiple consumers</strong> — many consumer groups read the same topic independently; a queue delivers each message to only one consumer. (3) <strong>Ordering</strong> — Topics are ordered per-partition; queues generally don't guarantee order. (4) <strong>Replay</strong> — Topics allow consuming from any past offset; queues don't.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">Explain Partitions. Why do they exist?<span class="arrow">▶</span></button><div class="qa-a">Partitions are the unit of parallelism in Kafka. A topic is split into N partitions, each being an ordered, immutable sequence of messages stored on one broker. They exist for: (1) <strong>Scalability</strong> — each partition can be on a different broker, distributing load horizontally. (2) <strong>Parallelism</strong> — each partition can be consumed by exactly one consumer per group simultaneously. (3) <strong>Throughput</strong> — single-partition topics are limited to one broker's I/O capacity. The partition count determines max consumer parallelism.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">What is an Offset?<span class="arrow">▶</span></button><div class="qa-a">An Offset is a monotonically increasing integer that uniquely identifies a message within a partition (e.g. offset 0, 1, 2...). Key points: (1) Offsets are per-partition, not global — offset 5 in partition 0 is different from offset 5 in partition 1. (2) Consumers track their position using offsets. (3) Offsets are stored in the <code>__consumer_offsets</code> internal Kafka topic. (4) <code>auto.offset.reset=earliest</code> starts from offset 0; <code>latest</code> starts from new messages only.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">What is a Consumer Group?<span class="arrow">▶</span></button><div class="qa-a">A Consumer Group is a logical grouping of consumers that collaboratively consume a topic. Rules: (1) Each partition is assigned to exactly one consumer per group. (2) Multiple groups can consume the same topic independently — each group maintains its own offset. (3) If consumers &gt; partitions, extra consumers are idle. (4) If consumers &lt; partitions, some consumers handle multiple partitions. This is the mechanism for both load balancing AND broadcast (multiple groups = each gets all messages).</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">What is a Kafka Broker?<span class="arrow">▶</span></button><div class="qa-a">A Broker is a single Kafka server instance. It stores partitions, handles read/write requests, replicates data to other brokers, and manages consumer group membership. A cluster is multiple brokers. One broker is the <strong>Controller</strong> (in KRaft mode) responsible for partition leader elections. In production, use a minimum of 3 brokers for fault tolerance. Brokers are identified by a unique <code>broker.id</code>.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">What is the difference between Kafka and RabbitMQ?<span class="arrow">▶</span></button><div class="qa-a">Key differences: (1) <strong>Retention</strong> — Kafka retains messages persistently (days/forever); RabbitMQ deletes after consumption. (2) <strong>Throughput</strong> — Kafka handles millions/sec; RabbitMQ handles thousands/sec. (3) <strong>Consumers</strong> — Kafka: pull-based, many groups read same topic; RabbitMQ: push-based, competing consumers. (4) <strong>Ordering</strong> — Kafka: guaranteed per partition; RabbitMQ: best-effort. (5) <strong>Use case</strong> — Kafka for event streaming, pipelines, high throughput; RabbitMQ for task queues, routing, RPC-style patterns.</div></div>
+  </div>
+
+  <div id="qaTab1" class="tab-panel">
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">Explain acks=0, acks=1, acks=all. When would you use each?<span class="arrow">▶</span></button><div class="qa-a"><strong>acks=0</strong>: Producer fires and forgets — no confirmation. Lowest latency, highest throughput, but messages can be lost. Use for: non-critical metrics, click tracking.<br/><strong>acks=1</strong>: Leader broker confirms receipt, but doesn't wait for followers. If leader crashes before replication, message is lost. Default setting — balanced.<br/><strong>acks=all (or -1)</strong>: Leader waits for all In-Sync Replicas to acknowledge. Highest durability — no data loss as long as at least one ISR exists. Use for: orders, payments, critical events. Combine with <code>min.insync.replicas=2</code> to prevent accepting writes with only 1 replica.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">What is ISR (In-Sync Replicas)? Why does it matter?<span class="arrow">▶</span></button><div class="qa-a">ISR is the set of replicas that are fully caught up with the leader (within <code>replica.lag.time.max.ms</code>). It matters because: (1) <code>acks=all</code> only waits for ISR members — if a slow follower falls out of ISR, it doesn't block producers. (2) <code>min.insync.replicas</code> defines the minimum ISR size — if ISR falls below this, Kafka refuses writes (NOT_ENOUGH_REPLICAS error). (3) During leader failure, only ISR members can become the new leader (unless <code>unclean.leader.election.enable=true</code>, which risks data loss). A replica is removed from ISR if it hasn't fetched from the leader within the lag timeout.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">What are the delivery semantics in Kafka?<span class="arrow">▶</span></button><div class="qa-a"><strong>At-most-once</strong>: Commit offset before processing. If processing fails, message is lost. Fastest, use for non-critical data.<br/><strong>At-least-once</strong>: Commit offset after successful processing. If processing fails, message is reprocessed → possible duplicates. Most common. Consumer must be idempotent.<br/><strong>Exactly-once (EOS)</strong>: Uses producer transactions (<code>enable.idempotence=true</code> + <code>transactional.id</code>) + consumer with <code>isolation.level=read_committed</code>. Guarantees no duplicates AND no data loss. Most complex, slightly lower throughput. Required for financial transactions.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">What is Consumer Rebalancing? What triggers it?<span class="arrow">▶</span></button><div class="qa-a">Rebalancing is the process of reassigning partitions to consumers in a group. Triggered by: (1) A consumer joins the group. (2) A consumer leaves or crashes (session timeout). (3) A consumer fails to call poll() within <code>max.poll.interval.ms</code>. (4) Partitions are added to the topic. During rebalancing, <strong>all consumption stops</strong> (stop-the-world). Modern Kafka uses Cooperative Incremental Rebalancing (Kafka 2.4+) to reduce this impact — only partitions that need to move are reassigned. Use <code>session.timeout.ms</code> and <code>heartbeat.interval.ms</code> to tune liveness detection.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">How does log compaction work?<span class="arrow">▶</span></button><div class="qa-a">Log compaction keeps the latest value per key, removing older records for the same key. It runs in the background as a log cleaner thread. A special tombstone record (null value) deletes a key entirely. Use cases: database change data capture (CDC), user profile state, configuration topics. Enable with <code>cleanup.policy=compact</code>. Note: compacted topics still preserve ordering within surviving offsets — they're not sorted by key. A message with offset 10 still comes after offset 5, even if they have the same key.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">What is the Dead Letter Queue (DLQ) pattern in Kafka?<span class="arrow">▶</span></button><div class="qa-a">A DLQ (or Dead Letter Topic in Kafka) is a separate topic where failed messages are routed after N retry attempts. Pattern: (1) Consumer tries to process a message. (2) On failure, retry N times with backoff. (3) After N failures, send message to <code>topic-name.DLT</code>. (4) A separate consumer monitors the DLQ for alerting/manual intervention. Spring Kafka's <code>@RetryableTopic</code> and <code>DeadLetterPublishingRecoverer</code> implement this automatically. Always include original partition, offset, and error details as headers in the DLQ message for debugging.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">What is Kafka Streams vs Kafka Consumer?<span class="arrow">▶</span></button><div class="qa-a">A regular Kafka Consumer reads messages and processes them individually. Kafka Streams is a stateful stream processing library built on top of Kafka. Key differences: (1) <strong>State</strong> — Streams maintains local state stores (backed by Kafka topics) for aggregations and joins; regular consumers must manage state externally. (2) <strong>Operations</strong> — Streams provides filter, map, groupBy, aggregate, join, windowing DSL. (3) <strong>Topology</strong> — Streams defines a processing graph; consumers just loop. Use Streams for: real-time aggregations, session windows, table-stream joins. Use regular consumer for: simple per-message processing, when you don't need state.</div></div>
+  </div>
+
+  <div id="qaTab2" class="tab-panel">
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">How does Kafka ensure message ordering?<span class="arrow">▶</span></button><div class="qa-a">Kafka guarantees ordering <strong>within a partition</strong> only — not across partitions. To ensure ordering: (1) Use a consistent partition key (all messages for the same entity go to the same partition). (2) Set <code>max.in.flight.requests.per.connection=1</code> for strict ordering without idempotence, or use <code>enable.idempotence=true</code> with up to 5 in-flight requests. (3) The consumer should have only one active consumer per partition (enforced by consumer groups). Across partitions, there is no ordering guarantee. If you need total ordering, use a single-partition topic (but this kills scalability).</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">What happens when a Kafka leader fails?<span class="arrow">▶</span></button><div class="qa-a">Leader failure sequence: (1) Follower stops receiving heartbeats from leader (detected within <code>replica.lag.time.max.ms</code>). (2) Controller detects the leader is down (via ZooKeeper session expiry or KRaft mechanism). (3) Controller selects new leader from ISR (the most caught-up replica). (4) Controller updates partition metadata. (5) Producers and consumers are notified of new leader via metadata refresh. The failover typically completes in seconds. If ISR is empty and <code>unclean.leader.election.enable=false</code> (default), the partition becomes unavailable until an ISR member returns — this is the safe choice for critical data.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">Explain KRaft mode and why ZooKeeper was removed<span class="arrow">▶</span></button><div class="qa-a">ZooKeeper was used for cluster metadata management: broker registration, partition leadership, topic configuration. Problems: (1) Separate cluster to operate and monitor. (2) Slow metadata propagation — up to 30 seconds on large clusters. (3) ZooKeeper became a bottleneck for scaling. KRaft (Kafka Raft) replaces ZooKeeper with a built-in Raft consensus algorithm. Benefits: (1) Single process per broker — simpler deployment. (2) Sub-second metadata propagation. (3) Supports millions of partitions (vs ~200k with ZooKeeper). (4) Faster controller failover. KRaft is GA since Kafka 3.3, default in Kafka 4.0.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">How would you handle consumer lag?<span class="arrow">▶</span></button><div class="qa-a">Consumer lag = producer offset - consumer committed offset. Causes: consumer too slow, partition count too low, message processing bottleneck. Solutions: (1) <strong>Increase parallelism</strong> — add more partitions + more consumer instances (up to partition count). (2) <strong>Optimize processing</strong> — async downstream calls, batching, caching. (3) <strong>Reduce message size</strong> — compression, smaller payloads. (4) <strong>Increase consumer throughput</strong> — tune <code>max.poll.records</code>, <code>fetch.min.bytes</code>. (5) Monitor with <code>kafka-consumer-groups.sh --describe</code> or Prometheus + Grafana. Alert when lag exceeds threshold (e.g., 1 million messages or 5 minutes behind).</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">What is Kafka's storage mechanism? How are messages stored on disk?<span class="arrow">▶</span></button><div class="qa-a">Kafka stores messages in <strong>log segments</strong> — binary files on disk per partition. Each partition directory contains: (1) <code>.log</code> files — actual message data, append-only. (2) <code>.index</code> files — sparse index mapping offset → file position for O(log n) seeks. (3) <code>.timeindex</code> files — timestamp → offset mapping for time-based seeks. Kafka uses sequential I/O (append-only writes, sequential reads) — this is why it's fast even on spinning disks. Messages are also held in the OS page cache, so reads of recent messages hit memory. Log segments are rolled when they reach <code>log.segment.bytes</code> (default 1GB) or <code>log.roll.ms</code>.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">How does Kafka achieve high throughput?<span class="arrow">▶</span></button><div class="qa-a">Kafka's throughput comes from several design decisions: (1) <strong>Sequential disk I/O</strong> — append-only writes are 100x faster than random writes. (2) <strong>OS page cache</strong> — recent data is served from RAM, not disk. (3) <strong>Zero-copy</strong> — <code>sendfile()</code> syscall transfers data from page cache to network socket without copying to user space. (4) <strong>Batching</strong> — producers accumulate messages into batches (<code>linger.ms</code>, <code>batch.size</code>) before sending, amortizing network overhead. (5) <strong>Compression</strong> — batch-level compression (snappy, lz4, zstd) reduces network and storage I/O. (6) <strong>Partition parallelism</strong> — multiple partitions across multiple disks and brokers.</div></div>
+  </div>
+
+  <div id="qaTab3" class="tab-panel">
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">Design a real-time order processing system using Kafka<span class="arrow">▶</span></button><div class="qa-a"><strong>Topics:</strong> order-created, inventory-reserved, payment-processed, order-fulfilled, notifications.<br/><strong>Partitioning:</strong> Key = userId for ordering guarantees. 12 partitions for ~12 consumer instances.<br/><strong>Services:</strong> Each microservice subscribes to relevant topics with its own consumer group — independent scaling. Inventory service subscribes to order-created; payment subscribes to inventory-reserved (after stock confirmed); fulfillment to payment-processed.<br/><strong>Fault tolerance:</strong> acks=all, idempotent consumers, DLQ for failures, saga pattern for distributed transactions.<br/><strong>Monitoring:</strong> Consumer lag dashboard, per-topic throughput, alert on lag > 10k msgs.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">How would you scale Kafka to handle 10 million messages per second?<span class="arrow">▶</span></button><div class="qa-a"><strong>Horizontal scaling:</strong> Add brokers (start with 9-12 for this load), spread partitions evenly. Aim for 10+ partitions, each handling ~1M msg/s.<br/><strong>Producer tuning:</strong> linger.ms=5-20ms, batch.size=256KB-1MB, compression=lz4 (best throughput/CPU ratio), acks=1 if you can tolerate minor data loss risk.<br/><strong>Consumer tuning:</strong> max.poll.records=500, async processing, consumer parallelism = partition count.<br/><strong>Hardware:</strong> SSDs for log storage, separate network interfaces for replication vs client traffic, 10Gb+ network, dedicated disks per partition directory.<br/><strong>Multi-datacenter:</strong> MirrorMaker 2 for cross-DC replication if geo-redundancy needed.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">How do you handle duplicate messages in Kafka?<span class="arrow">▶</span></button><div class="qa-a">Duplicates arise in at-least-once delivery (consumer reprocesses on crash). Solutions: (1) <strong>Idempotent consumer</strong> — deduplicate based on message ID stored in Redis/DB. Check "have I processed event-id X?" before processing. (2) <strong>Idempotent operations</strong> — design your business logic to be naturally idempotent (UPDATE SET x=v WHERE x!=v is idempotent; INSERT is not). (3) <strong>Exactly-once producer</strong> — <code>enable.idempotence=true</code> prevents producer-side duplicates caused by retries. (4) <strong>Transactional consumers</strong> — consume + produce + commit offset atomically. The best strategy depends on the cost of duplicates vs implementation complexity.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">How would you implement the Saga pattern with Kafka?<span class="arrow">▶</span></button><div class="qa-a">Saga manages distributed transactions without two-phase commit. With Kafka, use choreography-based saga: (1) Order service publishes <code>order-created</code>. (2) Inventory service consumes, reserves stock, publishes <code>inventory-reserved</code> or <code>inventory-failed</code>. (3) Payment service consumes <code>inventory-reserved</code>, processes payment, publishes <code>payment-processed</code> or <code>payment-failed</code>. (4) On any failure event, compensating transactions are published upstream. Challenges: (1) No global atomicity — compensating actions can also fail. (2) Hard to debug — need distributed tracing (correlation-id header). (3) Circular dependencies. For very complex flows, consider orchestration-based saga with Conductor or Temporal.</div></div>
+
+    <div class="qa-item"><button class="qa-q" onclick="toggleQA(this)">What would you monitor in a production Kafka cluster?<span class="arrow">▶</span></button><div class="qa-a"><strong>Broker metrics:</strong> BytesInPerSec/BytesOutPerSec (throughput), RequestHandlerAvgIdlePercent (&gt;70% = healthy), UnderReplicatedPartitions (should be 0), ActiveControllerCount (should be 1), OfflinePartitionsCount (should be 0).<br/><strong>Consumer metrics:</strong> records-lag-max (consumer lag per partition), fetch-rate, commit-rate.<br/><strong>Producer metrics:</strong> record-send-rate, record-error-rate, request-latency-avg.<br/><strong>JVM:</strong> GC pause time, heap usage.<br/><strong>Disk:</strong> log directory usage, disk I/O utilization.<br/><strong>Tools:</strong> JMX + Prometheus + Grafana, Confluent Control Center, Kafka UI. Alert on UnderReplicatedPartitions &gt; 0, consumer lag spike, broker down.</div></div>
+  </div>
+</div>
+
+</div><!-- end layout -->
+
+<div class="footer">
+  Created by Suraj Bunde | Interactive Engineering Guides
+</div>
+
+<script>
+// ===== NAVIGATION =====
+const sections = document.querySelectorAll('.section');
+const navBtns  = document.querySelectorAll('.nav-btn');
+const visited  = new Set([0]);
+let currentSection = 0;
+
+function showSection(idx) {
+  sections[currentSection].classList.remove('active');
+  navBtns[currentSection].classList.remove('active');
+  sections[idx].classList.add('active');
+  navBtns[idx].classList.add('active');
+  currentSection = idx;
+  visited.add(idx);
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  const pct = Math.round((visited.size / 7) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent =
+    visited.size + ' of 7 sections visited';
+}
+
+// ===== PARTITION TAB =====
+function switchPartTab(i) {
+  ['partTab0','partTab1','partTab2'].forEach((id,j)=>{
+    document.getElementById(id).classList.toggle('active', j===i);
+  });
+  document.querySelectorAll('#partTabBtns .tab-btn').forEach((b,j)=>{
+    b.classList.toggle('active', j===i);
+  });
+}
+function switchProdTab(i) {
+  ['prodTab0','prodTab1','prodTab2'].forEach((id,j)=>{
+    document.getElementById(id).classList.toggle('active', j===i);
+  });
+  document.querySelectorAll('#prodTabBtns .tab-btn').forEach((b,j)=>{
+    b.classList.toggle('active', j===i);
+  });
+}
+function switchSDTab(i) {
+  ['sdTab0','sdTab1'].forEach((id,j)=>{
+    document.getElementById(id).classList.toggle('active', j===i);
+  });
+  document.querySelectorAll('#sdTabBtns .tab-btn').forEach((b,j)=>{
+    b.classList.toggle('active', j===i);
+  });
+}
+function switchSBTab(i) {
+  ['sbTab0','sbTab1','sbTab2','sbTab3'].forEach((id,j)=>{
+    document.getElementById(id).classList.toggle('active', j===i);
+  });
+  document.querySelectorAll('#sbTabBtns .tab-btn').forEach((b,j)=>{
+    b.classList.toggle('active', j===i);
+  });
+}
+function switchQATab(i) {
+  ['qaTab0','qaTab1','qaTab2','qaTab3'].forEach((id,j)=>{
+    document.getElementById(id).classList.toggle('active', j===i);
+  });
+  document.querySelectorAll('#qaTabBtns .tab-btn').forEach((b,j)=>{
+    b.classList.toggle('active', j===i);
+  });
+}
+
+// ===== ACCORDION =====
+function toggleQA(btn) {
+  const item = btn.parentElement;
+  item.classList.toggle('open');
+}
+
+// ===== PARTITION VISUALIZER =====
+const messages = [
+  { key:'user-123', val:'Order #1001 CREATED', p:0 },
+  { key:'user-456', val:'Order #1002 CREATED', p:1 },
+  { key:'user-789', val:'Order #1003 CREATED', p:2 },
+  { key:'user-123', val:'Order #1001 PAYMENT', p:0 },
+  { key:'user-456', val:'Order #1002 SHIPPED', p:1 },
+];
+const colorMap = ['c0','c1','c2'];
+const offsets = [0,0,0];
+
+function renderMessages() {
+  ['pb0','pb1','pb2'].forEach(id=>{ document.getElementById(id).innerHTML=''; });
+  messages.forEach((m,idx)=>{
+    const div = document.createElement('div');
+    div.className = 'p-block ' + colorMap[m.p];
+    div.innerHTML = 'O' + idx;
+    div.title = m.key + ': ' + m.val;
+    div.onclick = () => {
+      document.getElementById('msgDetail').innerHTML =
+        `<span style="color:var(--text3)">key:</span> <span style="color:var(--coral)">${m.key}</span>  ` +
+        `<span style="color:var(--text3)">partition:</span> <span style="color:var(--amber)">${m.p}</span>  ` +
+        `<span style="color:var(--text3)">offset:</span> <span style="color:var(--green)">${offsets[m.p] - (messages.filter(x=>x.p===m.p).length - messages.filter((x,i)=>x.p===m.p && i<=idx).length)}</span>\n` +
+        `<span style="color:var(--text3)">value:</span> ${m.val}\n` +
+        `<span style="color:var(--text3)">hash(${m.key}) % 3 = ${m.p}</span>`;
+    };
+    document.getElementById('pb'+m.p).appendChild(div);
+  });
+}
+
+const keys = ['user-123','user-456','user-789','user-321','user-654'];
+const values = ['Order CREATED','Payment OK','Shipped','Delivered','Cancelled'];
+let msgIdx = messages.length;
+
+function addMessage() {
+  const key = keys[Math.floor(Math.random()*keys.length)];
+  const val = values[Math.floor(Math.random()*values.length)];
+  const p = Math.abs(hashCode(key)) % 3;
+  messages.push({ key, val, p });
+  offsets[p]++;
+  renderMessages();
+  document.getElementById('msgDetail').innerHTML =
+    `➕ New message: key=<span style="color:var(--coral)">${key}</span> → partition <span style="color:var(--amber)">${p}</span>`;
+}
+
+function resetMessages() {
+  messages.length = 0;
+  offsets[0]=offsets[1]=offsets[2]=0;
+  ['pb0','pb1','pb2'].forEach(id=>{ document.getElementById(id).innerHTML=''; });
+  document.getElementById('msgDetail').innerHTML = '👆 Click a message block above to inspect it';
+}
+
+function hashCode(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+  }
+  return h;
+}
+renderMessages();
+
+// ===== ISR SIMULATOR =====
+function failLeader() {
+  document.getElementById('broker0').className = 'broker-box failed';
+  document.getElementById('broker0').innerHTML =
+    '<div class="broker-title">💀 Broker 0 — FAILED</div>' +
+    '<div class="offset-list"><div style="color:var(--red)">OFFLINE</div></div>';
+  document.getElementById('broker2').className = 'broker-box leader';
+  document.getElementById('broker2').innerHTML =
+    '<div class="broker-title">🟢 Broker 2 — NEW LEADER</div>' +
+    '<div class="offset-list">' +
+    '<div class="synced">offset 0 ✓</div>' +
+    '<div class="synced">offset 1 ✓</div>' +
+    '<div class="synced">offset 2 ✓</div>' +
+    '<div class="synced">offset 3 ✓</div></div>';
+  document.getElementById('isrLog').className = 'callout amber';
+  document.getElementById('isrLog').innerHTML =
+    '⚡ Leader election! Broker 0 failed. Broker 2 elected as new leader (was in ISR). ISR=[1,2]. No data loss!';
+}
+
+function resetISR() {
+  document.getElementById('broker0').className = 'broker-box leader';
+  document.getElementById('broker0').innerHTML =
+    '<div class="broker-title">🟣 Broker 0 — LEADER</div>' +
+    '<div class="offset-list">' +
+    '<div class="synced">offset 0 ✓</div>' +
+    '<div class="synced">offset 1 ✓</div>' +
+    '<div class="synced">offset 2 ✓</div>' +
+    '<div class="synced">offset 3 ✓ (latest)</div></div>';
+  document.getElementById('broker1').className = 'broker-box follower';
+  document.getElementById('broker1').innerHTML =
+    '<div class="broker-title">Broker 1 — Follower</div>' +
+    '<div class="offset-list">' +
+    '<div class="synced">offset 0 ✓</div>' +
+    '<div class="synced">offset 1 ✓</div>' +
+    '<div class="synced">offset 2 ✓</div>' +
+    '<div style="color:var(--amber)">offset 3 ⏳</div></div>';
+  document.getElementById('broker2').className = 'broker-box follower';
+  document.getElementById('broker2').innerHTML =
+    '<div class="broker-title">Broker 2 — Follower</div>' +
+    '<div class="offset-list">' +
+    '<div class="synced">offset 0 ✓</div>' +
+    '<div class="synced">offset 1 ✓</div>' +
+    '<div class="synced">offset 2 ✓</div>' +
+    '<div class="synced">offset 3 ✓</div></div>';
+  document.getElementById('isrLog').className = 'callout blue';
+  document.getElementById('isrLog').innerHTML = 'Cluster healthy. Broker 0 is leader. RF=3, ISR=[0,1,2]';
+}
+
+// ===== SIMULATOR =====
+let simQueue = [];
+let consuming = true;
+let simOffset = 0;
+let lag = 0;
+const simPartitions = ['P0','P1','P2'];
+const simKeys = ['user-1','user-2','user-3','user-4','user-5'];
+const simVals = ['ORDER_PLACED','PAYMENT_INIT','STOCK_CHECK','SHIP_REQ','DELIVERED'];
+let simConsumerTimer = null;
+
+function simLog(src, msg, cls='kafka') {
+  const log = document.getElementById('simLog');
+  const now = new Date();
+  const t = now.toTimeString().substr(0,8);
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML = `<span class="log-time">${t}</span><span class="log-src ${cls}">${src.padEnd(9)}</span><span class="log-msg">${msg}</span>`;
+  log.appendChild(entry);
+  log.scrollTop = log.scrollHeight;
+}
+
+function simProduce() {
+  const key = simKeys[Math.floor(Math.random()*simKeys.length)];
+  const val = simVals[Math.floor(Math.random()*simVals.length)];
+  const p = Math.abs(hashCode(key)) % 3;
+  simQueue.push({ key, val, p, offset: simOffset++ });
+  lag++;
+  document.getElementById('simLag').textContent = lag;
+  simLog('PRODUCER', `key=${key} val=${val} → ${simPartitions[p]} offset:${simOffset-1}`, 'prod');
+}
+
+function simProduce5() { for(let i=0;i<5;i++) simProduce(); }
+
+function simToggleConsume() {
+  consuming = !consuming;
+  simLog('SYSTEM', consuming ? 'Consumer started' : 'Consumer stopped', 'kafka');
+  if (consuming) startConsumer();
+}
+
+function startConsumer() {
+  if (simConsumerTimer) clearInterval(simConsumerTimer);
+  simConsumerTimer = setInterval(() => {
+    if (!consuming || simQueue.length === 0) return;
+    const msg = simQueue.shift();
+    lag = Math.max(0, lag - 1);
+    document.getElementById('simLag').textContent = lag;
+    simLog('CONSUMER', `✅ Processed key=${msg.key} val=${msg.val} P:${msg.p} O:${msg.offset}`, 'cons');
+  }, 800);
+}
+
+startConsumer();
+
+function simClear() {
+  document.getElementById('simLog').innerHTML =
+    '<div class="log-entry"><span class="log-time">--:--:--</span><span class="log-src kafka">KAFKA</span><span class="log-msg">Log cleared. Cluster ready.</span></div>';
+  simQueue = [];
+  simOffset = 0;
+  lag = 0;
+  document.getElementById('simLag').textContent = '0';
+}
+</script>
+</body>
+</html>
