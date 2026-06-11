@@ -1,76 +1,96 @@
+# Interactive Engineering Study Guides
 
-# Interactive Engineering Guides
+A collection of interactive study guides designed to help engineers learn complex backend and distributed systems topics through visual explanations, architecture diagrams, interview-focused content, and real-world examples.
 
-Interactive visual learning guides for engineering concepts.
+## Why This Project Exists
 
-Current guides:
+Engineers repeatedly spend time and AI credits generating similar learning material for topics such as Kafka, Redis, System Design, JVM Internals, and Database Internals.
 
-* Apache Kafka Interactive Guide
-* System Design Interactive Guide
+This project aims to provide high-quality, interactive learning resources that anyone can use and learn from.
 
-## Purpose
+The goal is not to replace official documentation, but to provide structured learning paths that bridge the gap between:
 
-This repository provides interactive educational material designed to help engineers learn complex distributed systems concepts through visual explanations and guided exploration.
+* Beginner understanding
+* Production engineering knowledge
+* Interview readiness
 
-The guides are intended for:
+---
 
-* Students
-* Software Engineers
-* Platform Engineers
-* Backend Engineers
-* System Architects
-* Technical Interview Preparation
+## Available Guides
+
+### Free
+
+* Kafka: Beginner to Pro
+* System Design Guide (Community Edition)
+
+### In Progress
+
+* Redis / Valkey
+* JVM Internals
+* Java Concurrency
+
+### Planned
+
+* Kubernetes
+* Elasticsearch
+* Microservices Patterns
+* API Gateway & Service Mesh
+* Linux Internals for Backend Engineers
+
+---
 
 ## Features
 
-* Fully interactive HTML guides
-* Visual explanations
-* Self-paced learning
-* Browser-based experience
+* Interactive HTML guides
+* Visual architecture diagrams
+* Interview-focused content
+* Real-world engineering examples
+* Beginner → Advanced progression
+* Self-contained offline-friendly files
 * No installation required
 
-## Guides
+Simply open the HTML file in your browser.
 
-### Kafka Guide
+---
 
-Topics include:
+## Roadmap
 
-* Kafka Architecture
-* Topics and Partitions
-* Producers and Consumers
-* Consumer Groups
-* Replication
-* Leader Election
-* Offsets
-* Delivery Guarantees
-* Scaling Patterns
+* [x] Kafka
+* [x] System Design
+* [x] Database Internals
+* [x] Redis / Valkey
+* [ ] JVM Internals
+* [ ] Java Concurrency
+* [ ] Kubernetes
+* [ ] Elasticsearch
 
-### System Design Guide
+---
 
-Topics include:
+## Feedback
 
-* Scalability Fundamentals
-* Load Balancing
-* Caching
-* Databases
-* Replication
-* Sharding
-* Message Queues
-* Event-Driven Architectures
-* Reliability Patterns
-* High-Level Design Tradeoffs
+Have a topic suggestion or improvement idea?
 
-## Running Locally
+Open an issue or start a discussion.
 
-Clone the repository:
+---
 
-```bash
-git clone https://github.com/surajbunde/Interactive-Engineering-Guides
-```
+## Premium Bundle (Coming Soon)
 
-Open the HTML files directly in your browser.
+A complete Backend Engineering Interview Bundle containing:
 
-No build step is required.
+* System Design
+* Kafka
+* Database Internals
+* Redis / Valkey
+* JVM Internals
+* Java Concurrency
+* Future updates
+
+More details will be announced after the initial launch.
+
+---
+
+If these guides help you, consider starring the repository.
 
 ## License
 
