@@ -2,6 +2,8 @@
 
 > A collection of **interactive study guides** designed to help engineers learn complex backend and distributed systems topics through **visual explanations**, **architecture diagrams**, interview-focused content, and real-world examples.
 
+### 🌐 [View Guides Live →](https://surajbunde.github.io/Interactive-Engineering-Guides/)
+
 ---
 
 ## 💡 Why This Project Exists
@@ -24,8 +26,8 @@ The goal is not to replace official documentation, but to provide structured lea
 
 | Guide | Status | Description |
 |-------|--------|-------------|
-| 🎯 **Apache Kafka: Beginner to Pro** | `FREE` | Complete visual guide covering core concepts, internals, partitioning, ISR, system design patterns, and a Spring Boot E2E walkthrough |
-| 🏗️ **System Design Interview Guide** | `FREE` | Comprehensive guide covering scalability, databases, caching, messaging, distributed systems, and fintech patterns |
+| 🎯 **[Apache Kafka: Beginner to Pro](https://surajbunde.github.io/Interactive-Engineering-Guides/kafka-guide.html)** | `FREE` | Complete visual guide covering core concepts, internals, partitioning, ISR, system design patterns, and a Spring Boot E2E walkthrough |
+| 🏗️ **[System Design Interview Guide](https://surajbunde.github.io/Interactive-Engineering-Guides/system_design_book.html)** | `FREE` | Comprehensive guide covering scalability, databases, caching, messaging, distributed systems, and fintech patterns |
 
 ### 🛠️ In Progress
 
@@ -132,7 +134,7 @@ Commercial use requires prior written permission.
 - 🏢 Corporate training
 - 🎓 Internal company learning programs
 - 📹 Paid courses
-- 🚀 Bootcats
+- 🚀 Bootcamps
 - 💼 Consulting engagements
 - 💰 Educational products sold for profit
 - 🌐 Commercial learning platforms
