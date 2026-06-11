@@ -1,0 +1,2327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>System Design Interview Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #0f1526;
+    --bg3: #141c30;
+    --panel: #1a2240;
+    --panel2: #1e2a4a;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #7c3aed;
+    --accent4: #10b981;
+    --accent5: #f59e0b;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --border: rgba(255,255,255,0.07);
+    --glow: 0 0 30px rgba(0,212,255,0.15);
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'Lora', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events:none; z-index:0; opacity:0.4;
+  }
+
+  /* ── SIDEBAR NAV ── */
+  #sidebar {
+    position: fixed; left:0; top:0; bottom:0; width:260px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    overflow-y: auto; z-index: 100;
+    padding: 24px 0;
+    transition: transform 0.3s ease;
+  }
+  #sidebar::-webkit-scrollbar { width:4px; }
+  #sidebar::-webkit-scrollbar-track { background: transparent; }
+  #sidebar::-webkit-scrollbar-thumb { background: var(--panel2); border-radius:4px; }
+
+  .sidebar-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .sidebar-logo .logo-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent3), var(--accent));
+    color: white;
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .sidebar-logo h2 {
+    font-family: var(--font-head);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .sidebar-logo p {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--font-mono);
+    margin-top: 4px;
+  }
+
+  .nav-section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 10px 20px 6px;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 20px;
+    font-family: var(--font-head);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+  }
+  .nav-item:hover { background: var(--panel); color: var(--text); }
+  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(0,212,255,0.06); }
+  .nav-item .nav-icon { font-size: 16px; min-width: 20px; }
+  .nav-item .nav-badge {
+    margin-left: auto;
+    font-size: 10px;
+    background: var(--panel2);
+    color: var(--text3);
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-family: var(--font-mono);
+  }
+  .nav-item.active .nav-badge { background: rgba(0,212,255,0.15); color: var(--accent); }
+
+  /* progress bar in sidebar */
+  .sidebar-progress {
+    margin: 16px 20px 0;
+    padding: 14px;
+    background: var(--panel);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .sidebar-progress .sp-label {
+    display: flex; justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+  .sidebar-progress .sp-label span:last-child { color: var(--accent); }
+  .progress-bar {
+    height: 4px; background: var(--bg3); border-radius:4px; overflow:hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent3), var(--accent));
+    border-radius:4px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* ── MAIN CONTENT ── */
+  #main {
+    margin-left: 260px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  .page { display: none; padding: 48px 52px; max-width: 960px; }
+  .page.active { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── PAGE HEADERS ── */
+  .page-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .page-title {
+    font-family: var(--font-head);
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--text) 0%, var(--text2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle {
+    font-size: 16px;
+    color: var(--text2);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 40px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .card:hover { border-color: rgba(0,212,255,0.25); box-shadow: var(--glow); }
+  .card-title {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 17px;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  .card-body { color: var(--text2); font-size: 15px; }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+
+  /* ── CONCEPT PILL ── */
+  .pill {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    margin: 3px;
+  }
+  .pill-blue { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.2); }
+  .pill-orange { background: rgba(255,107,53,0.1); color: var(--accent2); border: 1px solid rgba(255,107,53,0.2); }
+  .pill-purple { background: rgba(124,58,237,0.15); color: #a78bfa; border: 1px solid rgba(124,58,237,0.25); }
+  .pill-green { background: rgba(16,185,129,0.1); color: var(--accent4); border: 1px solid rgba(16,185,129,0.2); }
+  .pill-yellow { background: rgba(245,158,11,0.1); color: var(--accent5); border: 1px solid rgba(245,158,11,0.2); }
+
+  /* ── DIAGRAMS ── */
+  .diagram-wrap {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 30px 24px;
+    margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-wrap h4 {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 20px;
+  }
+
+  /* flow diagram */
+  .flow {
+    display: flex; align-items: center;
+    flex-wrap: wrap; gap: 0;
+  }
+  .flow-node {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .fn-blue { background: rgba(0,212,255,0.12); color: var(--accent); border: 1px solid rgba(0,212,255,0.3); }
+  .fn-orange { background: rgba(255,107,53,0.12); color: var(--accent2); border: 1px solid rgba(255,107,53,0.3); }
+  .fn-purple { background: rgba(124,58,237,0.18); color: #a78bfa; border: 1px solid rgba(124,58,237,0.35); }
+  .fn-green { background: rgba(16,185,129,0.12); color: var(--accent4); border: 1px solid rgba(16,185,129,0.3); }
+  .fn-yellow { background: rgba(245,158,11,0.12); color: var(--accent5); border: 1px solid rgba(245,158,11,0.3); }
+  .fn-gray { background: rgba(255,255,255,0.05); color: var(--text2); border: 1px solid var(--border); }
+  .flow-arrow {
+    font-size: 18px;
+    color: var(--text3);
+    padding: 0 6px;
+  }
+
+  /* vertical flow */
+  .vflow { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
+  .vflow-arrow { font-size: 16px; color: var(--text3); padding: 4px 0 4px 20px; }
+
+  /* comparison table */
+  .comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .comp-table th {
+    background: var(--panel2);
+    padding: 10px 16px;
+    font-family: var(--font-head);
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+  .comp-table td {
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-size: 13.5px;
+  }
+  .comp-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* ── WEEK TIMELINE ── */
+  .week-timeline { margin: 30px 0; }
+  .week-item {
+    display: flex; gap: 20px;
+    margin-bottom: 0;
+    position: relative;
+  }
+  .week-item::before {
+    content: '';
+    position: absolute;
+    left: 18px; top: 40px; bottom: -2px;
+    width: 2px;
+    background: var(--border);
+  }
+  .week-item:last-child::before { display: none; }
+  .week-dot {
+    width: 38px; height: 38px; min-width: 38px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    z-index: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .week-body {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    flex: 1;
+  }
+  .week-body h3 {
+    font-family: var(--font-head);
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .week-body ul { padding-left: 16px; color: var(--text2); font-size: 14px; line-height: 1.9; }
+
+  /* ── TOPIC ACCORDION ── */
+  .accordion { margin-bottom: 12px; }
+  .accordion-header {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: all 0.2s;
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .accordion-header:hover { border-color: rgba(0,212,255,0.3); }
+  .accordion-header.open { border-color: rgba(0,212,255,0.4); border-radius: 10px 10px 0 0; background: rgba(0,212,255,0.06); }
+  .accordion-chevron { transition: transform 0.3s; font-size: 18px; color: var(--text3); }
+  .accordion-header.open .accordion-chevron { transform: rotate(180deg); color: var(--accent); }
+  .accordion-body {
+    display: none;
+    background: var(--bg3);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    padding: 20px 24px;
+    color: var(--text2);
+    font-size: 14.5px;
+    line-height: 1.8;
+  }
+  .accordion-body.open { display: block; animation: slideDown 0.25s ease; }
+  @keyframes slideDown { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── QUIZ ── */
+  .quiz-wrap { margin: 10px 0; }
+  .quiz-question {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .quiz-q-text {
+    font-family: var(--font-head);
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .quiz-q-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-opt {
+    padding: 12px 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text2);
+    transition: all 0.2s;
+    background: var(--bg3);
+    font-family: var(--font-body);
+  }
+  .quiz-opt:hover { border-color: var(--accent); color: var(--text); background: rgba(0,212,255,0.05); }
+  .quiz-opt.correct { background: rgba(16,185,129,0.12); border-color: var(--accent4); color: var(--accent4); }
+  .quiz-opt.wrong { background: rgba(255,107,53,0.1); border-color: var(--accent2); color: var(--accent2); }
+  .quiz-opt.disabled { pointer-events: none; }
+  .quiz-feedback {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    display: none;
+    line-height: 1.6;
+  }
+  .quiz-feedback.correct-fb { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); color: var(--accent4); }
+  .quiz-feedback.wrong-fb { background: rgba(255,107,53,0.08); border: 1px solid rgba(255,107,53,0.2); color: var(--accent2); }
+  .quiz-score-banner {
+    background: linear-gradient(135deg, var(--panel), var(--panel2));
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+    margin-top: 16px;
+    display: none;
+  }
+  .quiz-score-banner h3 { font-family: var(--font-head); font-size: 22px; margin-bottom: 6px; }
+  .quiz-score-banner p { color: var(--text2); font-size: 14px; }
+
+  /* ── CHEATSHEET ── */
+  .cheat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .cheat-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    transition: all 0.2s;
+  }
+  .cheat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.12); }
+  .cheat-card-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .cheat-icon { font-size: 22px; }
+  .cheat-card h4 { font-family: var(--font-head); font-size: 15px; font-weight: 700; }
+  .cheat-card ul { list-style: none; padding: 0; }
+  .cheat-card ul li {
+    font-size: 13px;
+    color: var(--text2);
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .cheat-card ul li:last-child { border-bottom: none; }
+  .cheat-card ul li::before { content: '▸'; color: var(--accent3); font-size: 10px; }
+
+  /* ── DESIGN PROBLEM ── */
+  .design-problem {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .dp-header {
+    background: var(--panel2);
+    padding: 16px 22px;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer;
+  }
+  .dp-header h3 { font-family: var(--font-head); font-size: 16px; font-weight: 700; }
+  .dp-difficulty {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .diff-easy { background: rgba(16,185,129,0.15); color: var(--accent4); }
+  .diff-med { background: rgba(245,158,11,0.15); color: var(--accent5); }
+  .diff-hard { background: rgba(255,107,53,0.15); color: var(--accent2); }
+  .diff-expert { background: rgba(124,58,237,0.15); color: #a78bfa; }
+  .dp-body { display: none; padding: 22px; background: var(--bg3); }
+  .dp-body.open { display: block; }
+  .dp-section { margin-bottom: 18px; }
+  .dp-section h4 {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 10px;
+  }
+  .dp-section ul { padding-left: 18px; color: var(--text2); font-size: 14px; line-height: 1.8; }
+  .dp-section p { color: var(--text2); font-size: 14.5px; line-height: 1.8; }
+
+  /* ── ALERT BOXES ── */
+  .alert {
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin: 16px 0;
+    font-size: 14px;
+    line-height: 1.7;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .alert-info { background: rgba(0,212,255,0.07); border-left: 3px solid var(--accent); color: var(--text2); }
+  .alert-warn { background: rgba(245,158,11,0.07); border-left: 3px solid var(--accent5); color: var(--text2); }
+  .alert-tip { background: rgba(16,185,129,0.07); border-left: 3px solid var(--accent4); color: var(--text2); }
+  .alert-danger { background: rgba(255,107,53,0.07); border-left: 3px solid var(--accent2); color: var(--text2); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 32px 0;
+  }
+
+  /* ── HERO ── */
+  .hero-section {
+    background: linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(0,212,255,0.08) 100%);
+    border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 20px;
+    padding: 40px;
+    margin-bottom: 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-section::before {
+    content: '';
+    position: absolute; top: -50px; right: -50px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(0,212,255,0.08), transparent 70%);
+    pointer-events: none;
+  }
+  .hero-section h1 {
+    font-family: var(--font-head);
+    font-size: clamp(26px, 4vw, 40px);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 14px;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-section p { color: var(--text2); font-size: 16px; max-width: 550px; margin-bottom: 20px; }
+  .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  /* ── STAT GRID ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+  }
+  .stat-card .stat-num {
+    font-family: var(--font-head);
+    font-size: 30px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .stat-card .stat-label { font-size: 12px; color: var(--text3); font-family: var(--font-mono); margin-top: 4px; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: #080d1a;
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 14px 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text2);
+    overflow-x: auto;
+    line-height: 1.8;
+  }
+  .code-block .kw { color: #a78bfa; }
+  .code-block .str { color: var(--accent4); }
+  .code-block .cm { color: var(--text3); font-style: italic; }
+  .code-block .num { color: var(--accent5); }
+
+  /* ── INTERVIEW TIPS ── */
+  .tip-card {
+    display: flex; gap: 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 14px;
+    align-items: flex-start;
+  }
+  .tip-num {
+    min-width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent3), var(--accent));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .tip-content h4 { font-family: var(--font-head); font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .tip-content p { color: var(--text2); font-size: 14px; line-height: 1.7; }
+
+  /* ── MOBILE HAMBURGER ── */
+  #hamburger {
+    display: none;
+    position: fixed; top: 16px; left: 16px;
+    z-index: 200;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 18px;
+  }
+  #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+
+  @media(max-width: 900px) {
+    #sidebar { transform: translateX(-100%); }
+    #sidebar.open { transform: translateX(0); }
+    #main { margin-left: 0; }
+    .page { padding: 32px 20px; }
+    #hamburger { display: flex; align-items: center; }
+    #overlay.show { display: block; }
+    .card-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── FOOTER ── */
+  .site-footer {
+    text-align: center;
+    padding: 32px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text3);
+    margin-top: 40px;
+    font-family: var(--font-mono);
+  }
+  .site-footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .site-footer a:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<button id="hamburger" onclick="toggleSidebar()">☰</button>
+<div id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">Study Book</div>
+    <h2>System Design<br>Interview Guide</h2>
+    <p>30-day · Language-Agnostic</p>
+  </div>
+
+  <div class="sidebar-progress">
+    <div class="sp-label">
+      <span>Your Progress</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+
+  <div class="nav-section-label">Foundations</div>
+  <div class="nav-item active" onclick="showPage('home')"><span class="nav-icon">🏠</span> Overview <span class="nav-badge">Start</span></div>
+  <div class="nav-item" onclick="showPage('roadmap')"><span class="nav-icon">🗺️</span> 30-Day Roadmap <span class="nav-badge">Week×4</span></div>
+  <div class="nav-item" onclick="showPage('scalability')"><span class="nav-icon">📈</span> Scalability <span class="nav-badge">Core</span></div>
+  <div class="nav-item" onclick="showPage('databases')"><span class="nav-icon">🗄️</span> Databases <span class="nav-badge">Core</span></div>
+
+  <div class="nav-section-label">Core Concepts</div>
+  <div class="nav-item" onclick="showPage('caching')"><span class="nav-icon">⚡</span> Caching <span class="nav-badge">Core</span></div>
+  <div class="nav-item" onclick="showPage('messaging')"><span class="nav-icon">📨</span> Messaging <span class="nav-badge">Core</span></div>
+  <div class="nav-item" onclick="showPage('distributed')"><span class="nav-icon">🌐</span> Distributed Sys <span class="nav-badge">Core</span></div>
+  <div class="nav-item" onclick="showPage('interview')"><span class="nav-icon">🎯</span> Interview Method <span class="nav-badge">Key</span></div>
+
+  <div class="nav-section-label">Design Problems</div>
+  <div class="nav-item" onclick="showPage('problems')"><span class="nav-icon">🧩</span> 15 Problems <span class="nav-badge">Practice</span></div>
+  <div class="nav-item" onclick="showPage('fintech')"><span class="nav-icon">🏦</span> Fintech Focus <span class="nav-badge">Finance</span></div>
+
+  <div class="nav-section-label">Review</div>
+  <div class="nav-item" onclick="showPage('cheatsheet')"><span class="nav-icon">📋</span> Cheat Sheet <span class="nav-badge">Quick</span></div>
+  <div class="nav-item" onclick="showPage('quiz')"><span class="nav-icon">🧠</span> Self Quiz <span class="nav-badge">Test</span></div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+
+  <!-- ══════════════════════════════════════ HOME ══ -->
+  <div id="page-home" class="page active">
+    <div class="page-eyebrow">WELCOME · YOUR INTERVIEW GUIDE</div>
+
+    <div class="hero-section">
+      <h1>System Design Interview<br>Guide</h1>
+      <p>A comprehensive, language-agnostic guide to system design interviews — covering scalability, databases, caching, messaging, distributed systems, and fintech patterns.</p>
+      <div class="hero-tags">
+        <span class="pill pill-blue">All Levels Welcome</span>
+        <span class="pill pill-orange">Fintech Patterns</span>
+        <span class="pill pill-purple">Language Agnostic</span>
+        <span class="pill pill-green">30-Day Roadmap</span>
+        <span class="pill pill-yellow">15 Canonical Problems</span>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num">20</div><div class="stat-label">Core Concepts</div></div>
+      <div class="stat-card"><div class="stat-num">15</div><div class="stat-label">Design Problems</div></div>
+      <div class="stat-card"><div class="stat-num">30</div><div class="stat-label">Days Intensive</div></div>
+      <div class="stat-card"><div class="stat-num">8</div><div class="stat-label">Study Modules</div></div>
+    </div>
+
+    <div class="alert alert-tip">
+      <span class="alert-icon">💡</span>
+      <div><strong>How to use this guide:</strong> Work through modules in sidebar order. Do the 30-Day Roadmap first to set your plan. Then dive deep into each concept. Finish each week with the Quiz. The Cheat Sheet is your interview-day companion.</div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title">🎯 What interviewers test</div>
+        <div class="card-body">Interviewers don't ask basic coding questions. They ask: <em>"Design a fraud detection system"</em> and see if you can break down ambiguity, make trade-offs, and communicate reasoning under pressure.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">🏦 Fintech priority</div>
+        <div class="card-body">Financial companies specifically probe ACID vs BASE trade-offs, payment idempotency, event sourcing, and distributed ledger concepts — all covered in the Fintech Focus module.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">⚡ 30-day intensive plan</div>
+        <div class="card-body">Week 1: Foundations → Week 2: Beginner problems → Week 3: Intermediate problems → Week 4: Advanced & Fintech problems + mock interviews.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="page-eyebrow">THE GOLDEN RULE</div>
+    <div class="card" style="border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.04);">
+      <div class="card-title" style="color: var(--accent);">A confident explanation beats a perfect diagram</div>
+      <div class="card-body">A candidate who says <em>"I'd start with PostgreSQL because transactions are critical, shard by user_id if writes become a bottleneck, use Redis to reduce read pressure, and decouple notifications via Kafka"</em> scores higher than someone drawing 20 boxes without reasoning through trade-offs.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ ROADMAP ══ -->
+  <div id="page-roadmap" class="page">
+    <div class="page-eyebrow">MODULE 1 · STUDY PLAN</div>
+    <div class="page-title">Your 30-Day Intensive Roadmap</div>
+    <div class="page-subtitle">4 weeks × focused themes — from zero to confident senior-level system design in 30 days.</div>
+
+    <div class="week-timeline">
+      <div class="week-item">
+        <div class="week-dot" style="background:rgba(0,212,255,0.15);color:var(--accent);border:2px solid var(--accent);">W1</div>
+        <div class="week-body">
+          <h3 style="color:var(--accent);">Week 1 — Core Foundations (Days 1–7)</h3>
+          <ul>
+            <li><strong>Day 1–2:</strong> Scalability — vertical vs horizontal, load balancers, stateless apps</li>
+            <li><strong>Day 3:</strong> Databases — SQL vs NoSQL, ACID vs BASE, when to use what</li>
+            <li><strong>Day 4:</strong> Caching — Cache-Aside, Write-Through, Redis internals</li>
+            <li><strong>Day 5:</strong> Messaging — Kafka vs RabbitMQ, async processing, event-driven patterns</li>
+            <li><strong>Day 6–7:</strong> Distributed Systems — CAP theorem, replication, sharding, consistency models</li>
+          </ul>
+          <div style="margin-top:12px;">
+            <span class="pill pill-blue">Scalability</span>
+            <span class="pill pill-orange">Databases</span>
+            <span class="pill pill-purple">Caching</span>
+            <span class="pill pill-green">Messaging</span>
+            <span class="pill pill-yellow">CAP Theorem</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-item">
+        <div class="week-dot" style="background:rgba(255,107,53,0.15);color:var(--accent2);border:2px solid var(--accent2);">W2</div>
+        <div class="week-body">
+          <h3 style="color:var(--accent2);">Week 2 — Beginner Problems (Days 8–14)</h3>
+          <ul>
+            <li><strong>Day 8–9:</strong> Design URL Shortener (TinyURL) — hashing, redirection, analytics</li>
+            <li><strong>Day 10:</strong> Design Pastebin — blob storage, TTL, deduplication</li>
+            <li><strong>Day 11–12:</strong> Design Rate Limiter — token bucket, sliding window, Redis Lua scripts</li>
+            <li><strong>Day 13–14:</strong> Design Notification Service — fan-out, push vs pull, delivery guarantees</li>
+          </ul>
+          <div style="margin-top:12px;">
+            <span class="pill pill-orange">URL Shortener</span>
+            <span class="pill pill-blue">Rate Limiter</span>
+            <span class="pill pill-green">Notifications</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-item">
+        <div class="week-dot" style="background:rgba(124,58,237,0.15);color:#a78bfa;border:2px solid #a78bfa;">W3</div>
+        <div class="week-body">
+          <h3 style="color:#a78bfa;">Week 3 — Intermediate Problems (Days 15–21)</h3>
+          <ul>
+            <li><strong>Day 15–16:</strong> Design Chat System (WhatsApp) — WebSockets, message storage, delivery states</li>
+            <li><strong>Day 17–18:</strong> Design News Feed — fan-out on write vs read, ranking, Redis sorted sets</li>
+            <li><strong>Day 19–20:</strong> Design BookMyShow — seat inventory, concurrency, optimistic locking</li>
+            <li><strong>Day 21:</strong> Design API Gateway — auth, rate limiting, circuit breaker, routing</li>
+          </ul>
+          <div style="margin-top:12px;">
+            <span class="pill pill-purple">WhatsApp</span>
+            <span class="pill pill-yellow">News Feed</span>
+            <span class="pill pill-blue">BookMyShow</span>
+            <span class="pill pill-orange">API Gateway</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="week-item">
+        <div class="week-dot" style="background:rgba(16,185,129,0.15);color:var(--accent4);border:2px solid var(--accent4);">W4</div>
+        <div class="week-body">
+          <h3 style="color:var(--accent4);">Week 4 — Advanced & Fintech (Days 22–30)</h3>
+          <ul>
+            <li><strong>Day 22–23:</strong> Design Payment Gateway — idempotency, 2-phase commit, saga pattern</li>
+            <li><strong>Day 24–25:</strong> Design Banking Ledger — event sourcing, CQRS, double-entry accounting</li>
+            <li><strong>Day 26–27:</strong> Design Fraud Detection Platform — stream processing, ML model serving, alerting</li>
+            <li><strong>Day 28:</strong> Design Distributed Cache — consistent hashing, eviction policies</li>
+            <li><strong>Day 29–30:</strong> Mock Interviews + Review weak spots + cheat sheet drill</li>
+          </ul>
+          <div style="margin-top:12px;">
+            <span class="pill pill-green">Payment Gateway</span>
+            <span class="pill pill-blue">Banking Ledger</span>
+            <span class="pill pill-orange">Fraud Detection</span>
+            <span class="pill pill-purple">Mock Interviews</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠️</span>
+      <div><strong>Daily commitment:</strong> Target 90–120 minutes per day. Read one concept → draw the architecture by hand → explain it out loud as if in an interview. This tri-modal learning (read, draw, speak) is the fastest way to internalize system design.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ SCALABILITY ══ -->
+  <div id="page-scalability" class="page">
+    <div class="page-eyebrow">MODULE 2 · FOUNDATIONS</div>
+    <div class="page-title">Scalability</div>
+    <div class="page-subtitle">Understanding how systems grow to handle millions of users — the bedrock of every system design interview.</div>
+
+    <div class="diagram-wrap">
+      <h4>Vertical vs Horizontal Scaling</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center;">
+        <div>
+          <div style="text-align:center;margin-bottom:12px;font-family:var(--font-mono);font-size:12px;color:var(--accent2);">VERTICAL SCALING (Scale Up)</div>
+          <div class="vflow" style="align-items:center;">
+            <div class="flow-node fn-orange">Small Server<br><span style="font-size:11px;opacity:0.6;">2 CPU · 4GB RAM</span></div>
+            <div class="vflow-arrow">⬇ Upgrade</div>
+            <div class="flow-node fn-orange" style="opacity:0.85;">Medium Server<br><span style="font-size:11px;opacity:0.6;">8 CPU · 32GB RAM</span></div>
+            <div class="vflow-arrow">⬇ Upgrade</div>
+            <div class="flow-node fn-orange" style="opacity:0.7;">Big Server<br><span style="font-size:11px;opacity:0.6;">32 CPU · 256GB RAM</span></div>
+          </div>
+          <div style="margin-top:14px;font-size:13px;color:var(--text3);">⚠ Has a ceiling. SPOF. Downtime to upgrade.</div>
+        </div>
+        <div>
+          <div style="text-align:center;margin-bottom:12px;font-family:var(--font-mono);font-size:12px;color:var(--accent);">HORIZONTAL SCALING (Scale Out)</div>
+          <div class="flow" style="flex-direction:column;align-items:center;gap:6px;">
+            <div class="flow-node fn-blue">Load Balancer</div>
+            <div style="font-size:18px;color:var(--text3);">↓</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+              <div class="flow-node fn-blue" style="font-size:12px;">App 1</div>
+              <div class="flow-node fn-blue" style="font-size:12px;">App 2</div>
+              <div class="flow-node fn-blue" style="font-size:12px;">App 3</div>
+              <div class="flow-node fn-blue" style="font-size:12px;">App N</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;font-size:13px;color:var(--text3);">✅ Infinite scale. No SPOF. Zero-downtime deploys.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="diagram-wrap">
+      <h4>Standard Load Balancer Architecture</h4>
+      <div class="flow" style="flex-wrap:wrap;gap:6px;justify-content:center;">
+        <div class="flow-node fn-yellow">Client</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node fn-orange">DNS</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node fn-blue">Load Balancer<br><span style="font-size:11px;opacity:0.7;">(Nginx / ALB)</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node fn-purple">App Servers<br><span style="font-size:11px;opacity:0.7;">Stateless</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node fn-green">DB / Cache<br><span style="font-size:11px;opacity:0.7;">Shared State</span></div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Load Balancing Algorithms <span class="accordion-chevron">▾</span>
+      </div>
+      <div class="accordion-body">
+        <table class="comp-table" style="margin-top:8px;">
+          <tr><th>Algorithm</th><th>How it works</th><th>Best for</th></tr>
+          <tr><td><span class="pill pill-blue">Round Robin</span></td><td>Sends requests in circular order</td><td>Homogeneous servers, stateless apps</td></tr>
+          <tr><td><span class="pill pill-orange">Least Connections</span></td><td>Routes to server with fewest active connections</td><td>Long-lived connections, heterogeneous load</td></tr>
+          <tr><td><span class="pill pill-purple">IP Hash</span></td><td>Same client always hits same server</td><td>Session stickiness (avoid if possible)</td></tr>
+          <tr><td><span class="pill pill-green">Weighted</span></td><td>Higher weight = more requests</td><td>Servers with different capacities</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Stateless vs Stateful Apps — Why it matters <span class="accordion-chevron">▾</span>
+      </div>
+      <div class="accordion-body">
+        <p>Horizontal scaling <strong>requires stateless app servers</strong>. If your app stores user session in local memory, a different server can't serve the next request. Instead:</p>
+        <ul style="margin:12px 0 0 18px;color:var(--text2);font-size:14px;line-height:1.9;">
+          <li>Store sessions in <strong>Redis</strong> (shared, fast)</li>
+          <li>Use <strong>JWT tokens</strong> (state lives in the token itself)</li>
+          <li>Externalize all user state to the database layer</li>
+        </ul>
+        <div class="alert alert-tip" style="margin-top:14px;">
+          <span class="alert-icon">💡</span>
+          <div>Interview line: <em>"I'll make app servers stateless by externalizing session state to Redis, which allows any server to handle any request — enabling true horizontal scaling."</em></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        CDN — Content Delivery Network <span class="accordion-chevron">▾</span>
+      </div>
+      <div class="accordion-body">
+        <p>A CDN caches static assets (images, CSS, JS, videos) at edge nodes globally, so users receive content from the nearest server rather than your origin.</p>
+        <div class="flow" style="flex-wrap:wrap;gap:6px;margin-top:14px;justify-content:center;">
+          <div class="flow-node fn-yellow">User (Mumbai)</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node fn-green">CDN Edge (Mumbai)<br><span style="font-size:11px;opacity:0.7;">Cache Hit ✅</span></div>
+          <div style="margin: 10px 0; width:100%; text-align:center; color:var(--text3); font-size:13px;">Cache Miss scenario:</div>
+          <div class="flow-node fn-yellow">User (Mumbai)</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node fn-orange">CDN Edge<br><span style="font-size:11px;opacity:0.7;">Miss ❌</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node fn-blue">Origin Server<br><span style="font-size:11px;opacity:0.7;">(US East)</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node fn-orange">CDN caches it</div>
+        </div>
+        <p style="margin-top:14px;font-size:14px;color:var(--text2);">Tools: <strong>Cloudflare</strong>, <strong>AWS CloudFront</strong>, <strong>Akamai</strong>. Mention CDN whenever the problem involves serving media at scale (YouTube, Netflix, Instagram).</p>
+      </div>
+    </div>
+
+    <div class="alert alert-info" style="margin-top:24px;">
+      <span class="alert-icon">🎙️</span>
+      <div><strong>Interview script:</strong> "I'll start with a single server, then extract the DB layer. Once traffic grows, I'll add a load balancer with multiple stateless app instances. For global users, a CDN handles static assets, and Redis handles session state."</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ DATABASES ══ -->
+  <div id="page-databases" class="page">
+    <div class="page-eyebrow">MODULE 3 · FOUNDATIONS</div>
+    <div class="page-title">Databases</div>
+    <div class="page-subtitle">The most contested topic in system design — knowing exactly when to use SQL vs NoSQL, and how to scale either.</div>
+
+    <div class="diagram-wrap">
+      <h4>SQL vs NoSQL — Decision Tree</h4>
+      <div class="vflow" style="align-items:center;gap:4px;">
+        <div class="flow-node fn-yellow" style="text-align:center;">Need ACID transactions?<br><span style="font-size:12px;opacity:0.7;">Payments, banking, inventory</span></div>
+        <div style="display:flex;gap:50px;margin-top:4px;">
+          <div class="vflow" style="align-items:center;">
+            <div style="font-family:var(--font-mono);font-size:12px;color:var(--accent4);margin-bottom:6px;">YES ↓</div>
+            <div class="flow-node fn-blue">SQL Database<br><span style="font-size:11px;opacity:0.7;">PostgreSQL / MySQL</span></div>
+          </div>
+          <div class="vflow" style="align-items:center;">
+            <div style="font-family:var(--font-mono);font-size:12px;color:var(--accent2);margin-bottom:6px;">NO ↓</div>
+            <div class="vflow" style="align-items:center;">
+              <div class="flow-node fn-gray" style="text-align:center;">Flexible schema?<br><span style="font-size:11px;opacity:0.7;">User profiles, catalogs</span></div>
+              <div style="display:flex;gap:20px;margin-top:4px;">
+                <div class="vflow" style="align-items:center;gap:4px;">
+                  <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent4);">YES</div>
+                  <div class="flow-node fn-orange" style="font-size:12px;">MongoDB<br><span style="font-size:10px;opacity:0.7;">Document</span></div>
+                </div>
+                <div class="vflow" style="align-items:center;gap:4px;">
+                  <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent4);">Time-series</div>
+                  <div class="flow-node fn-purple" style="font-size:12px;">Cassandra<br><span style="font-size:10px;opacity:0.7;">Wide-column</span></div>
+                </div>
+                <div class="vflow" style="align-items:center;gap:4px;">
+                  <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent4);">K-V</div>
+                  <div class="flow-node fn-green" style="font-size:12px;">DynamoDB<br><span style="font-size:10px;opacity:0.7;">Key-Value</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title" style="color:var(--accent);">🐘 PostgreSQL / MySQL</div>
+        <div class="card-body">
+          <span class="pill pill-green">ACID</span>
+          <span class="pill pill-blue">Transactions</span>
+          <span class="pill pill-yellow">Joins</span>
+          <div style="margin-top:12px;font-size:14px;line-height:1.8;">
+            <strong>Use when:</strong> Financial transactions, inventory, user accounts, any domain needing consistency guarantees.<br>
+            <strong>Weakness:</strong> Schema migrations are painful; harder to scale writes horizontally.
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--accent2);">🍃 MongoDB</div>
+        <div class="card-body">
+          <span class="pill pill-orange">Document</span>
+          <span class="pill pill-purple">Flexible Schema</span>
+          <div style="margin-top:12px;font-size:14px;line-height:1.8;">
+            <strong>Use when:</strong> Catalogs, user profiles, CMS, data with varying structure.<br>
+            <strong>Weakness:</strong> No multi-document ACID (well, limited since v4); not ideal for complex joins.
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#a78bfa;">🔥 Cassandra</div>
+        <div class="card-body">
+          <span class="pill pill-purple">Wide-Column</span>
+          <span class="pill pill-blue">Massive Scale</span>
+          <div style="margin-top:12px;font-size:14px;line-height:1.8;">
+            <strong>Use when:</strong> Time-series data, IoT, activity feeds, Netflix-scale writes.<br>
+            <strong>Weakness:</strong> Eventual consistency; no joins; queries must be designed around access patterns.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Database Sharding — How to scale writes <span class="accordion-chevron">▾</span>
+      </div>
+      <div class="accordion-body">
+        <p>Sharding splits data across multiple database nodes (shards) so each node holds only a subset of the data.</p>
+        <div class="diagram-wrap" style="margin:14px 0 0;">
+          <h4>Sharding by User ID (Hash-based)</h4>
+          <div class="flow" style="flex-wrap:wrap;gap:6px;justify-content:center;">
+            <div class="flow-node fn-yellow">user_id = 1001</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node fn-blue">Shard Router<br><span style="font-size:11px;opacity:0.7;">user_id % 4</span></div>
+            <div class="flow-arrow">→</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <div class="flow-node fn-green" style="font-size:12px;">Shard 0<br><span style="font-size:10px;opacity:0.7;">uid%4=0</span></div>
+              <div class="flow-node fn-orange" style="font-size:12px;">Shard 1<br><span style="font-size:10px;opacity:0.7;">uid%4=1</span></div>
+              <div class="flow-node fn-purple" style="font-size:12px;">Shard 2<br><span style="font-size:10px;opacity:0.7;">uid%4=2</span></div>
+              <div class="flow-node fn-blue" style="font-size:12px;">Shard 3<br><span style="font-size:10px;opacity:0.7;">uid%4=3</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-warn" style="margin-top:14px;">
+          <span class="alert-icon">⚠️</span>
+          <div><strong>Hot shard problem:</strong> If one user generates 90% of traffic (celebrity user), that shard becomes a bottleneck. Solution: add a random suffix to the sharding key for celebrity accounts, or use consistent hashing.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Read Replicas — Scale reads separately <span class="accordion-chevron">▾</span>
+      </div>
+      <div class="accordion-body">
+        <div class="flow" style="flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px;">
+          <div class="flow-node fn-orange">Writes</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node fn-blue">Primary DB</div>
+          <div class="flow-arrow">→</div>
+          <div style="display:flex;gap:8px;">
+            <div class="flow-node fn-green" style="font-size:12px;">Replica 1<br><span style="font-size:10px;opacity:0.7;">Reads</span></div>
+            <div class="flow-node fn-green" style="font-size:12px;">Replica 2<br><span style="font-size:10px;opacity:0.7;">Reads</span></div>
+            <div class="flow-node fn-green" style="font-size:12px;">Replica 3<br><span style="font-size:10px;opacity:0.7;">Reads</span></div>
+          </div>
+        </div>
+        <p style="font-size:14px;color:var(--text2);">Replication lag means replicas may serve slightly stale data — acceptable for most reads, <strong>not acceptable</strong> for financial reads (always read from primary after a write in banking).</p>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        ACID vs BASE — Critical for payment system interviews <span class="accordion-chevron">▾</span>
+      </div>
+      <div class="accordion-body">
+        <table class="comp-table">
+          <tr><th>Property</th><th>ACID (SQL)</th><th>BASE (NoSQL)</th></tr>
+          <tr><td>Consistency</td><td>Strong (immediate)</td><td>Eventual (may lag)</td></tr>
+          <tr><td>Availability</td><td>Can sacrifice for consistency</td><td>Highly available</td></tr>
+          <tr><td>Best for</td><td>Payments, banking, orders</td><td>Social feeds, analytics, metrics</td></tr>
+          <tr><td>Example DB</td><td>PostgreSQL, MySQL</td><td>Cassandra, DynamoDB, MongoDB</td></tr>
+        </table>
+        <div class="alert alert-danger" style="margin-top:14px;">
+          <span class="alert-icon">🏦</span>
+          <div><strong>Rule of thumb:</strong> Any money movement (debits, credits, transfers) must use ACID. Analytics and reporting can use BASE. Never let an interviewer catch you putting payment data in Cassandra without explaining compensating transactions.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ CACHING ══ -->
+  <div id="page-caching" class="page">
+    <div class="page-eyebrow">MODULE 4 · CORE CONCEPTS</div>
+    <div class="page-title">Caching</div>
+    <div class="page-subtitle">The single highest-leverage optimization in distributed systems. Know your patterns cold.</div>
+
+    <div class="diagram-wrap">
+      <h4>Cache Aside (Lazy Loading) — Most Common Pattern</h4>
+      <div class="vflow" style="gap:4px;">
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div class="flow-node fn-yellow" style="min-width:100px;text-align:center;">App</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node fn-green" style="min-width:120px;text-align:center;">Redis<br><span style="font-size:11px;opacity:0.7;">Check cache first</span></div>
+        </div>
+        <div style="padding-left:20px;display:flex;gap:8px;align-items:flex-start;margin-top:8px;">
+          <div>
+            <div style="font-family:var(--font-mono);font-size:12px;color:var(--accent4);margin-bottom:6px;">Cache HIT ✅</div>
+            <div class="flow-node fn-green" style="font-size:12px;">Return cached data<br>instantly</div>
+          </div>
+          <div style="margin-left:30px;">
+            <div style="font-family:var(--font-mono);font-size:12px;color:var(--accent2);margin-bottom:6px;">Cache MISS ❌</div>
+            <div class="vflow" style="gap:4px;">
+              <div class="flow-node fn-blue" style="font-size:12px;">Query Database</div>
+              <div class="vflow-arrow">↓</div>
+              <div class="flow-node fn-green" style="font-size:12px;">Write to Redis (TTL)</div>
+              <div class="vflow-arrow">↓</div>
+              <div class="flow-node fn-yellow" style="font-size:12px;">Return to App</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title" style="color:var(--accent);">Cache Aside</div>
+        <div class="card-body" style="font-size:14px;">App manages cache manually. On miss: read DB → store in cache → return. Best for read-heavy workloads. Data may be stale if DB is updated without invalidating cache.</div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--accent2);">Write Through</div>
+        <div class="card-body" style="font-size:14px;">Every write goes to cache AND DB simultaneously. Cache is always fresh. Downside: higher write latency; cache fills with data that may never be read.</div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#a78bfa;">Write Back (Behind)</div>
+        <div class="card-body" style="font-size:14px;">Write to cache only, async-flush to DB later. Extremely fast writes but risk of data loss if cache crashes before flush. Use for non-critical high-frequency writes.</div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Redis Data Structures — Know these for interviews <span class="accordion-chevron">▾</span>
+      </div>
+      <div class="accordion-body">
+        <table class="comp-table">
+          <tr><th>Structure</th><th>Use Case</th><th>Example</th></tr>
+          <tr><td><span class="pill pill-blue">String</span></td><td>Simple cache, counters, sessions</td><td>user:1001:session → JWT</td></tr>
+          <tr><td><span class="pill pill-orange">Hash</span></td><td>Object with fields</td><td>user:1001 → {name, email, age}</td></tr>
+          <tr><td><span class="pill pill-purple">List</span></td><td>Queues, recent activity</td><td>notifications:user:1001 (latest 20)</td></tr>
+          <tr><td><span class="pill pill-green">Sorted Set</span></td><td>Leaderboards, ranking, news feed</td><td>feed:user:1001 → posts sorted by score</td></tr>
+          <tr><td><span class="pill pill-yellow">Set</span></td><td>Unique membership, tags</td><td>online_users → {uid1, uid2, ...}</td></tr>
+        </table>
+        <div class="alert alert-tip" style="margin-top:14px;">
+          <span class="alert-icon">💡</span>
+          <div><strong>Interview win:</strong> When asked about News Feed, mention Redis Sorted Sets (ZADD/ZRANGE) for ranking posts by timestamp or engagement score — shows you know the tool deeply.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Cache Eviction Policies <span class="accordion-chevron">▾</span>
+      </div>
+      <div class="accordion-body">
+        <table class="comp-table">
+          <tr><th>Policy</th><th>What it evicts</th><th>Best for</th></tr>
+          <tr><td><span class="pill pill-blue">LRU</span></td><td>Least recently used items</td><td>General purpose — most common</td></tr>
+          <tr><td><span class="pill pill-orange">LFU</span></td><td>Least frequently used items</td><td>Skewed access patterns (Zipf distribution)</td></tr>
+          <tr><td><span class="pill pill-purple">TTL</span></td><td>Items past expiry time</td><td>Session data, OTPs, rate limits</td></tr>
+          <tr><td><span class="pill pill-yellow">Random</span></td><td>Random item</td><td>When all items equally likely to be accessed</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠️</span>
+      <div><strong>Cache Stampede / Thundering Herd:</strong> When a popular cache key expires, thousands of requests simultaneously miss and hammer the DB. Solutions: (1) Mutex locking — only one request rebuilds, others wait. (2) Background refresh — proactively refresh before TTL expires. (3) Probabilistic early expiry.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ MESSAGING ══ -->
+  <div id="page-messaging" class="page">
+    <div class="page-eyebrow">MODULE 5 · CORE CONCEPTS</div>
+    <div class="page-title">Messaging & Async Systems</div>
+    <div class="page-subtitle">Decouple services, absorb traffic spikes, and build fault-tolerant pipelines with message queues and event streams.</div>
+
+    <div class="diagram-wrap">
+      <h4>Synchronous vs Asynchronous Processing</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent2);margin-bottom:10px;text-align:center;">SYNCHRONOUS — Tight coupling</div>
+          <div class="vflow" style="align-items:center;gap:4px;">
+            <div class="flow-node fn-yellow">User Request</div>
+            <div class="vflow-arrow">↓ waits...</div>
+            <div class="flow-node fn-blue">App Server</div>
+            <div class="vflow-arrow">↓ waits...</div>
+            <div class="flow-node fn-orange">Email Service</div>
+            <div class="vflow-arrow">↓ waits...</div>
+            <div class="flow-node fn-purple">SMS Service</div>
+            <div class="vflow-arrow">↓ 3000ms later</div>
+            <div class="flow-node fn-yellow">Response</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent4);margin-bottom:10px;text-align:center;">ASYNC WITH KAFKA — Loose coupling</div>
+          <div class="vflow" style="align-items:center;gap:4px;">
+            <div class="flow-node fn-yellow">User Request</div>
+            <div class="vflow-arrow">↓ instant</div>
+            <div class="flow-node fn-blue">App Server</div>
+            <div class="vflow-arrow">↓ publish event</div>
+            <div class="flow-node fn-green">Kafka Topic<br><span style="font-size:11px;opacity:0.7;">user.registered</span></div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <div class="flow-node fn-orange" style="font-size:11px;">Email Worker</div>
+              <div class="flow-node fn-purple" style="font-size:11px;">SMS Worker</div>
+              <div class="flow-node fn-blue" style="font-size:11px;">Analytics</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Kafka — Deep Dive for Interviews <span class="accordion-chevron">▾</span>
+      </div>
+      <div class="accordion-body">
+        <div class="card-grid" style="margin-bottom:14px;">
+          <div style="background:var(--panel2);border-radius:10px;padding:16px;">
+            <div style="font-family:var(--font-head);font-size:14px;font-weight:700;margin-bottom:8px;color:var(--accent);">Key Concepts</div>
+            <ul style="padding-left:16px;font-size:13px;color:var(--text2);line-height:1.9;">
+              <li><strong>Topic:</strong> Named stream of events</li>
+              <li><strong>Partition:</strong> Ordered, immutable log (parallelism unit)</li>
+              <li><strong>Consumer Group:</strong> Multiple consumers sharing a partition</li>
+              <li><strong>Offset:</strong> Position of a message in a partition</li>
+              <li><strong>Retention:</strong> Messages kept for N hours/days</li>
+            </ul>
+          </div>
+          <div style="background:var(--panel2);border-radius:10px;padding:16px;">
+            <div style="font-family:var(--font-head);font-size:14px;font-weight:700;margin-bottom:8px;color:var(--accent2);">When Kafka shines</div>
+            <ul style="padding-left:16px;font-size:13px;color:var(--text2);line-height:1.9;">
+              <li>High-throughput event streaming</li>
+              <li>Multiple consumers per event</li>
+              <li>Replay capability needed</li>
+              <li>Audit log / event sourcing</li>
+              <li>Fraud detection pipelines</li>
+              <li>Real-time analytics</li>
+            </ul>
+          </div>
+        </div>
+        <div class="alert alert-info">
+          <span class="alert-icon">🎙️</span>
+          <div>Interview line: <em>"When the user registers, I'll publish a 'user.registered' event to Kafka. Multiple consumers can independently handle email, SMS, and analytics — completely decoupled, with replay capability if any consumer fails."</em></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Kafka vs RabbitMQ — When to use which <span class="accordion-chevron">▾</span>
+      </div>
+      <div class="accordion-body">
+        <table class="comp-table">
+          <tr><th>Factor</th><th>Kafka</th><th>RabbitMQ</th></tr>
+          <tr><td>Model</td><td>Log-based (pull)</td><td>Queue-based (push)</td></tr>
+          <tr><td>Throughput</td><td>Millions/sec</td><td>Thousands/sec</td></tr>
+          <tr><td>Message replay</td><td>✅ Yes (retention)</td><td>❌ No (consumed = gone)</td></tr>
+          <tr><td>Complex routing</td><td>Basic (topic-based)</td><td>✅ Rich (exchanges, bindings)</td></tr>
+          <tr><td>Best for</td><td>Event streaming, audit logs, payment pipelines</td><td>Task queues, RPC, job workers</td></tr>
+          <tr><td>Ecosystem</td><td>spring-kafka / confluent-kafka-python / sarama</td><td>spring-amqp / pika / amqp-client</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Exactly-Once, At-Least-Once, At-Most-Once Delivery <span class="accordion-chevron">▾</span>
+      </div>
+      <div class="accordion-body">
+        <table class="comp-table">
+          <tr><th>Guarantee</th><th>Meaning</th><th>Risk</th><th>Use</th></tr>
+          <tr><td><span class="pill pill-orange">At-Most-Once</span></td><td>Message may be lost, never duplicated</td><td>Data loss</td><td>Metrics, logs (loss OK)</td></tr>
+          <tr><td><span class="pill pill-blue">At-Least-Once</span></td><td>Delivered ≥1 times, may duplicate</td><td>Duplicate processing</td><td>Most systems (idempotent consumers)</td></tr>
+          <tr><td><span class="pill pill-green">Exactly-Once</span></td><td>Delivered exactly once</td><td>Performance cost</td><td>Payments, ledger (critical)</td></tr>
+        </table>
+        <div class="alert alert-danger" style="margin-top:14px;">
+          <span class="alert-icon">🏦</span>
+          <div><strong>Payment critical:</strong> Payment processors must ensure exactly-once semantics. In Kafka, this requires idempotent producers + transactional APIs. Always mention idempotency keys for payment APIs.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ DISTRIBUTED ══ -->
+  <div id="page-distributed" class="page">
+    <div class="page-eyebrow">MODULE 6 · CORE CONCEPTS</div>
+    <div class="page-title">Distributed Systems</div>
+    <div class="page-subtitle">The deep theory that separates senior engineers from mid-level ones. Master CAP, consistency, and failure modes.</div>
+
+    <div class="diagram-wrap">
+      <h4>CAP Theorem — You can only choose 2 of 3</h4>
+      <div style="display:flex;justify-content:center;margin:10px 0 20px;">
+        <svg viewBox="0 0 320 260" width="320" height="260" style="overflow:visible;">
+          <!-- Triangle -->
+          <polygon points="160,20 20,230 300,230" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+          <!-- CA side label -->
+          <text x="70" y="148" fill="#94a3b8" font-size="11" font-family="JetBrains Mono, monospace" text-anchor="middle" transform="rotate(-56,70,148)">SQL databases</text>
+          <!-- CP side label -->
+          <text x="256" y="148" fill="#94a3b8" font-size="11" font-family="JetBrains Mono, monospace" text-anchor="middle" transform="rotate(56,256,148)">HBase, Zookeeper</text>
+          <!-- AP bottom label -->
+          <text x="160" y="255" fill="#94a3b8" font-size="11" font-family="JetBrains Mono, monospace" text-anchor="middle">Cassandra, DynamoDB</text>
+          <!-- Nodes -->
+          <circle cx="160" cy="20" r="32" fill="rgba(0,212,255,0.12)" stroke="rgba(0,212,255,0.4)" stroke-width="1.5"/>
+          <text x="160" y="15" fill="#00d4ff" font-size="12" font-family="Syne, sans-serif" font-weight="700" text-anchor="middle">Consistency</text>
+          <text x="160" y="30" fill="#94a3b8" font-size="10" font-family="JetBrains Mono, monospace" text-anchor="middle">Same data everywhere</text>
+          <circle cx="20" cy="230" r="32" fill="rgba(124,58,237,0.12)" stroke="rgba(124,58,237,0.4)" stroke-width="1.5"/>
+          <text x="20" y="225" fill="#a78bfa" font-size="12" font-family="Syne, sans-serif" font-weight="700" text-anchor="middle">Availability</text>
+          <text x="20" y="240" fill="#94a3b8" font-size="10" font-family="JetBrains Mono, monospace" text-anchor="middle">Always responds</text>
+          <circle cx="300" cy="230" r="32" fill="rgba(255,107,53,0.12)" stroke="rgba(255,107,53,0.4)" stroke-width="1.5"/>
+          <text x="300" y="225" fill="#ff6b35" font-size="12" font-family="Syne, sans-serif" font-weight="700" text-anchor="middle">Partition</text>
+          <text x="300" y="240" fill="#94a3b8" font-size="10" font-family="JetBrains Mono, monospace" text-anchor="middle">Tolerance</text>
+        </svg>
+      </div>
+      <div style="font-size:13px;color:var(--text2);text-align:center;line-height:1.8;">Network partitions <em>will</em> happen in any distributed system.<br>So the real choice is: <strong style="color:var(--accent);">CP</strong> (consistent but may be unavailable) vs <strong style="color:#a78bfa;">AP</strong> (available but may be stale).</div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Consistency Models — Spectrum <span class="accordion-chevron">▾</span>
+      </div>
+      <div class="accordion-body">
+        <div style="position:relative;height:60px;margin:10px 0 20px;">
+          <div style="position:absolute;top:20px;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--accent4),var(--accent5),var(--accent2));border-radius:4px;"></div>
+          <div style="position:absolute;top:0;left:0;text-align:center;width:100px;">
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent4);">Strong</div>
+            <div style="width:10px;height:10px;background:var(--accent4);border-radius:50%;margin:6px auto;"></div>
+            <div style="font-size:11px;color:var(--text3);">Linearizable</div>
+          </div>
+          <div style="position:absolute;top:0;left:33%;transform:translateX(-50%);text-align:center;width:100px;">
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent5);">Sequential</div>
+            <div style="width:10px;height:10px;background:var(--accent5);border-radius:50%;margin:6px auto;"></div>
+            <div style="font-size:11px;color:var(--text3);">Ordered globally</div>
+          </div>
+          <div style="position:absolute;top:0;left:66%;transform:translateX(-50%);text-align:center;width:100px;">
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent2);">Causal</div>
+            <div style="width:10px;height:10px;background:var(--accent2);border-radius:50%;margin:6px auto;"></div>
+            <div style="font-size:11px;color:var(--text3);">Cause before effect</div>
+          </div>
+          <div style="position:absolute;top:0;right:0;text-align:center;width:100px;">
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent3);">Eventual</div>
+            <div style="width:10px;height:10px;background:var(--accent3);border-radius:50%;margin:6px auto;"></div>
+            <div style="font-size:11px;color:var(--text3);">Will converge</div>
+          </div>
+        </div>
+        <p style="font-size:14px;color:var(--text2);margin-top:10px;">For payment systems: payments need <strong>linearizable</strong> (strongest). User profile updates can be <strong>eventual</strong>. Chat message ordering can be <strong>causal</strong>.</p>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Consistent Hashing — How distributed caches & databases route data <span class="accordion-chevron">▾</span>
+      </div>
+      <div class="accordion-body">
+        <p style="font-size:14px;color:var(--text2);margin-bottom:14px;">Regular hashing (key % N) breaks when you add/remove servers — everything remaps. Consistent hashing places both servers and keys on a ring so only K/N keys migrate when a server changes (K = keys, N = servers).</p>
+        <div style="display:flex;justify-content:center;">
+          <svg viewBox="0 0 220 220" width="220" height="220">
+            <circle cx="110" cy="110" r="85" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+            <!-- Server nodes -->
+            <circle cx="110" cy="25" r="18" fill="rgba(0,212,255,0.12)" stroke="rgba(0,212,255,0.4)" stroke-width="1.5"/>
+            <text x="110" y="22" fill="#00d4ff" font-size="10" font-family="JetBrains Mono,monospace" text-anchor="middle">S1</text>
+            <text x="110" y="34" fill="#64748b" font-size="8" text-anchor="middle">Redis-1</text>
+            <circle cx="191" cy="155" r="18" fill="rgba(255,107,53,0.12)" stroke="rgba(255,107,53,0.4)" stroke-width="1.5"/>
+            <text x="191" y="152" fill="#ff6b35" font-size="10" font-family="JetBrains Mono,monospace" text-anchor="middle">S2</text>
+            <text x="191" y="164" fill="#64748b" font-size="8" text-anchor="middle">Redis-2</text>
+            <circle cx="29" cy="155" r="18" fill="rgba(124,58,237,0.12)" stroke="rgba(124,58,237,0.4)" stroke-width="1.5"/>
+            <text x="29" y="152" fill="#a78bfa" font-size="10" font-family="JetBrains Mono,monospace" text-anchor="middle">S3</text>
+            <text x="29" y="164" fill="#64748b" font-size="8" text-anchor="middle">Redis-3</text>
+            <!-- Keys -->
+            <circle cx="150" cy="40" r="10" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+            <text x="150" y="44" fill="#10b981" font-size="9" font-family="JetBrains Mono,monospace" text-anchor="middle">k1</text>
+            <circle cx="185" cy="75" r="10" fill="rgba(245,158,11,0.15)" stroke="rgba(245,158,11,0.3)" stroke-width="1"/>
+            <text x="185" y="79" fill="#f59e0b" font-size="9" font-family="JetBrains Mono,monospace" text-anchor="middle">k2</text>
+            <circle cx="55" cy="55" r="10" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+            <text x="55" y="59" fill="#10b981" font-size="9" font-family="JetBrains Mono,monospace" text-anchor="middle">k3</text>
+            <text x="110" y="118" fill="#94a3b8" font-size="10" font-family="JetBrains Mono,monospace" text-anchor="middle">Hash Ring</text>
+          </svg>
+        </div>
+        <p style="font-size:14px;color:var(--text2);">Used by: Redis Cluster, Cassandra, DynamoDB, Memcached. Virtual nodes improve distribution uniformity.</p>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        Common Failure Modes — Senior engineers must know these <span class="accordion-chevron">▾</span>
+      </div>
+      <div class="accordion-body">
+        <table class="comp-table">
+          <tr><th>Failure</th><th>Description</th><th>Mitigation</th></tr>
+          <tr><td><span class="pill pill-orange">Single Point of Failure</span></td><td>One component takes down the whole system</td><td>Redundancy, active-active setup</td></tr>
+          <tr><td><span class="pill pill-red" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2);">Cascading Failure</span></td><td>One service failure overloads dependents</td><td>Circuit breaker, bulkhead pattern</td></tr>
+          <tr><td><span class="pill pill-yellow">Hot Partition</span></td><td>One shard gets disproportionate traffic</td><td>Better shard key, random suffix, celebrity handling</td></tr>
+          <tr><td><span class="pill pill-purple">Split Brain</span></td><td>Two nodes both think they're the primary</td><td>Consensus protocol (Raft/Paxos), odd number nodes</td></tr>
+          <tr><td><span class="pill pill-blue">Network Partition</span></td><td>Nodes can't communicate</td><td>CAP trade-off choice, timeout + retry</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ INTERVIEW ══ -->
+  <div id="page-interview" class="page">
+    <div class="page-eyebrow">MODULE 7 · STRATEGY</div>
+    <div class="page-title">The Interview Method</div>
+    <div class="page-subtitle">A repeatable 5-step framework that works for every system design question — memorise and rehearse until it's automatic.</div>
+
+    <div class="tip-card">
+      <div class="tip-num">1</div>
+      <div class="tip-content">
+        <h4>Clarify Requirements (2–3 min)</h4>
+        <p>Never start drawing. Ask: Who uses this? What scale? Which features are MVP vs nice-to-have? What are the SLA requirements (latency, availability)? Interviewers love this — it shows senior thinking. Example: "Before I start, let me clarify — are we designing for global users or India-only? Do we need real-time delivery receipts or is eventual OK?"</p>
+      </div>
+    </div>
+
+    <div class="tip-card">
+      <div class="tip-num">2</div>
+      <div class="tip-content">
+        <h4>Estimate Scale (3–5 min)</h4>
+        <p>Order-of-magnitude math. 100M users × 10 req/day = 1B req/day ÷ 86,400 sec ≈ 11,500 RPS. Storage: 100M users × 1KB profile = 100GB. This tells you: do you need caching? Sharding? CDN? Always walk the interviewer through your estimates — the process matters more than precision.</p>
+        <div class="code-block">
+<span class="cm">// Quick scale estimation template</span>
+DAU = 10M users
+Reads/user/day = 20 → <span class="num">200M reads/day</span> = <span class="num">2,300 RPS</span>
+Writes/user/day = 2 → <span class="num">20M writes/day</span> = <span class="num">230 RPS</span>
+Avg object size = 1KB → storage growth = <span class="num">20GB/day</span>
+<span class="cm">// Peak = 3-5x average → design for 10,000 RPS peak</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip-card">
+      <div class="tip-num">3</div>
+      <div class="tip-content">
+        <h4>High-Level Design (5–8 min)</h4>
+        <p>Draw the skeleton: Client → API Gateway → Services → Cache → Database. Start simple. Don't jump to microservices immediately — start monolith, then extract services if scale demands. Label every arrow (HTTP, WebSocket, gRPC, Kafka).</p>
+        <div class="diagram-wrap" style="margin-top:14px;">
+          <h4>Standard High-Level Template</h4>
+          <div class="flow" style="flex-wrap:wrap;gap:6px;justify-content:center;">
+            <div class="flow-node fn-yellow">Client<br><span style="font-size:10px;opacity:0.6;">Mobile/Web</span></div>
+            <div class="flow-arrow">HTTPS</div>
+            <div class="flow-node fn-orange">API Gateway<br><span style="font-size:10px;opacity:0.6;">Auth · Rate Limit</span></div>
+            <div class="flow-arrow">gRPC</div>
+            <div class="flow-node fn-blue">Services<br><span style="font-size:10px;opacity:0.6;">Stateless</span></div>
+            <div class="flow-arrow">→</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="flow-node fn-green" style="font-size:12px;">Redis Cache</div>
+              <div class="flow-node fn-purple" style="font-size:12px;">PostgreSQL</div>
+              <div class="flow-node fn-yellow" style="font-size:12px;">Kafka</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip-card">
+      <div class="tip-num">4</div>
+      <div class="tip-content">
+        <h4>Deep Dive a Component (10–15 min)</h4>
+        <p>The interviewer will direct you — follow their lead. Common deep-dives: database schema design, API contract, caching strategy, failure handling, consistency guarantees. This is where you show seniority. Discuss trade-offs explicitly: "I chose X over Y because of Z, and the trade-off is W."</p>
+      </div>
+    </div>
+
+    <div class="tip-card">
+      <div class="tip-num">5</div>
+      <div class="tip-content">
+        <h4>Identify Bottlenecks & Improvements (5 min)</h4>
+        <p>Proactively identify where the system will break: "The DB write path is the likely bottleneck at 10,000 RPS. I'd shard by user_id. The read path can be cached in Redis with a 5-min TTL. For global users, add CDN and regional read replicas." This is the separator between mid-level and senior candidates.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="page-eyebrow">LANGUAGE THAT SIGNALS SENIORITY</div>
+    <div class="card-grid">
+      <div class="card" style="border-color:rgba(0,212,255,0.2);">
+        <div class="card-title" style="font-size:14px;color:var(--accent4);">✅ Say This</div>
+        <div class="card-body" style="font-size:13px;line-height:1.9;">
+          "The trade-off here is..."<br>
+          "I'd start simple with X, then scale to Y when..."<br>
+          "Failure mode here would be... mitigated by..."<br>
+          "Consistency requirement for this is [strong/eventual] because..."<br>
+          "I'd instrument this with [Prometheus/Grafana] to detect..."
+        </div>
+      </div>
+      <div class="card" style="border-color:rgba(255,107,53,0.2);">
+        <div class="card-title" style="font-size:14px;color:var(--accent2);">❌ Avoid This</div>
+        <div class="card-body" style="font-size:13px;line-height:1.9;">
+          Drawing 20 boxes without explanation<br>
+          "I'll use microservices" (without justifying)<br>
+          Jumping to Cassandra when PostgreSQL suffices<br>
+          "I'll use Kubernetes" as a solution to everything<br>
+          Not asking clarifying questions at the start
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ PROBLEMS ══ -->
+  <div id="page-problems" class="page">
+    <div class="page-eyebrow">MODULE 8 · PRACTICE</div>
+    <div class="page-title">15 Canonical Design Problems</div>
+    <div class="page-subtitle">Ordered by difficulty. Work through each — read the breakdown, then cover it and explain it out loud in 30 minutes.</div>
+
+    <div class="design-problem">
+      <div class="dp-header" onclick="toggleDP(this)">
+        <h3>1. URL Shortener (TinyURL)</h3>
+        <span class="dp-difficulty diff-easy">BEGINNER</span>
+      </div>
+      <div class="dp-body">
+        <div class="dp-section">
+          <h4>Key Questions to Clarify</h4>
+          <ul><li>Custom short codes or random?</li><li>Analytics needed (click counts)?</li><li>Expiry / TTL on URLs?</li><li>Read:Write ratio? (Typically 100:1 — very read-heavy)</li></ul>
+        </div>
+        <div class="dp-section">
+          <h4>Architecture</h4>
+          <div class="flow" style="flex-wrap:wrap;gap:6px;">
+            <div class="flow-node fn-yellow">User</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node fn-blue">API Server</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node fn-green">Redis Cache<br><span style="font-size:10px;opacity:0.6;">shortcode→URL</span></div>
+            <div class="flow-arrow">→ miss →</div>
+            <div class="flow-node fn-purple">PostgreSQL<br><span style="font-size:10px;opacity:0.6;">url_mappings</span></div>
+          </div>
+        </div>
+        <div class="dp-section">
+          <h4>Short Code Generation</h4>
+          <p>Option A: MD5/SHA256 hash of long URL → take first 7 chars. Collision rate is low but handle with retry. Option B: Auto-increment ID → Base62 encode (a-z, A-Z, 0-9). 7 chars of Base62 = 62^7 = 3.5 trillion URLs. Option B is preferred — no collision, predictable space.</p>
+        </div>
+        <div class="dp-section">
+          <h4>Key Trade-offs</h4>
+          <ul><li>Redis caches hot URLs — 80% traffic served from cache</li><li>302 redirect (temporary) vs 301 (permanent) — 301 offloads server, but loses analytics</li><li>Shard by short code hash if scale demands it</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="design-problem">
+      <div class="dp-header" onclick="toggleDP(this)">
+        <h3>2. Rate Limiter</h3>
+        <span class="dp-difficulty diff-easy">BEGINNER</span>
+      </div>
+      <div class="dp-body">
+        <div class="dp-section">
+          <h4>Algorithms</h4>
+          <table class="comp-table">
+            <tr><th>Algorithm</th><th>Pros</th><th>Cons</th></tr>
+            <tr><td><span class="pill pill-blue">Token Bucket</span></td><td>Burst allowed, smooth</td><td>Race condition on distributed</td></tr>
+            <tr><td><span class="pill pill-orange">Sliding Window Counter</span></td><td>Accurate, fair</td><td>Memory per user</td></tr>
+            <tr><td><span class="pill pill-purple">Fixed Window Counter</span></td><td>Simple</td><td>Boundary burst problem</td></tr>
+            <tr><td><span class="pill pill-green">Leaky Bucket</span></td><td>Consistent output rate</td><td>Drops bursts</td></tr>
+          </table>
+        </div>
+        <div class="dp-section">
+          <h4>Redis Implementation</h4>
+          <div class="code-block">
+<span class="cm">// Sliding window with Redis sorted sets</span>
+key = <span class="str">"ratelimit:user:1001"</span>
+now = current_timestamp_ms
+window = <span class="num">60000</span> <span class="cm">// 1 minute</span>
+<span class="kw">ZREMRANGEBYSCORE</span> key <span class="num">0</span> (now - window)  <span class="cm">// remove old</span>
+count = <span class="kw">ZCARD</span> key
+<span class="kw">if</span> count &lt; limit:
+    <span class="kw">ZADD</span> key now now
+    <span class="kw">EXPIRE</span> key window_seconds
+    allow()
+<span class="kw">else</span>: reject()
+          </div>
+        </div>
+        <div class="dp-section">
+          <h4>Distributed Rate Limiter</h4>
+          <p>Single Redis instance is a SPOF. Use Redis Cluster or Lua scripts for atomic operations. For global rate limiting, use a distributed counter with sticky sessions or a global Redis.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="design-problem">
+      <div class="dp-header" onclick="toggleDP(this)">
+        <h3>3. Notification Service</h3>
+        <span class="dp-difficulty diff-easy">BEGINNER</span>
+      </div>
+      <div class="dp-body">
+        <div class="dp-section">
+          <h4>Architecture</h4>
+          <div class="vflow" style="gap:4px;">
+            <div class="flow-node fn-blue" style="text-align:center;">Any Microservice (Payment, Auth, Order...)</div>
+            <div class="vflow-arrow">↓ publish event</div>
+            <div class="flow-node fn-green" style="text-align:center;">Kafka Topic: notifications</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
+              <div class="flow-node fn-orange" style="font-size:12px;">Email Worker<br><span style="font-size:10px;opacity:0.6;">SendGrid</span></div>
+              <div class="flow-node fn-purple" style="font-size:12px;">SMS Worker<br><span style="font-size:10px;opacity:0.6;">Twilio</span></div>
+              <div class="flow-node fn-blue" style="font-size:12px;">Push Worker<br><span style="font-size:10px;opacity:0.6;">FCM/APNs</span></div>
+              <div class="flow-node fn-yellow" style="font-size:12px;">In-App Worker<br><span style="font-size:10px;opacity:0.6;">WebSocket</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="dp-section">
+          <h4>Key Design Points</h4>
+          <ul>
+            <li>Fan-out: one event → multiple channels</li>
+            <li>Idempotency: deduplicate with notification_id to avoid double-send</li>
+            <li>User preferences: respect opt-out per channel per category</li>
+            <li>Retry with exponential backoff for failed deliveries</li>
+            <li>Dead letter queue (DLQ) for permanently failed messages</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="design-problem">
+      <div class="dp-header" onclick="toggleDP(this)">
+        <h3>4. Chat System (WhatsApp)</h3>
+        <span class="dp-difficulty diff-med">INTERMEDIATE</span>
+      </div>
+      <div class="dp-body">
+        <div class="dp-section">
+          <h4>Connection Layer</h4>
+          <p>Use WebSockets (persistent bidirectional) for real-time messaging. HTTP long-polling is a fallback. Each user connects to a chat server — need a routing layer to find which server a user is on.</p>
+          <div class="flow" style="flex-wrap:wrap;gap:6px;margin-top:10px;">
+            <div class="flow-node fn-yellow">User A</div>
+            <div class="flow-arrow">WebSocket</div>
+            <div class="flow-node fn-blue">Chat Server 1</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node fn-green">Message Queue<br><span style="font-size:10px;opacity:0.6;">Kafka</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node fn-blue">Chat Server 2</div>
+            <div class="flow-arrow">WebSocket</div>
+            <div class="flow-node fn-yellow">User B</div>
+          </div>
+        </div>
+        <div class="dp-section">
+          <h4>Message Storage</h4>
+          <ul>
+            <li>Cassandra: ideal for chat — time-series, high write throughput, partition by conversation_id</li>
+            <li>Schema: (conv_id, message_id, sender_id, content, timestamp, status)</li>
+            <li>Message IDs: use Snowflake IDs (time-sortable, unique across nodes)</li>
+          </ul>
+        </div>
+        <div class="dp-section">
+          <h4>Online Presence</h4>
+          <p>Heartbeat every 30s → update Redis key "online:user_id" with TTL 60s. If key expires, user is offline. For "last seen": store timestamp in Redis, batch-persist to DB every 5 min.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="design-problem">
+      <div class="dp-header" onclick="toggleDP(this)">
+        <h3>5. BookMyShow (Seat Booking)</h3>
+        <span class="dp-difficulty diff-med">INTERMEDIATE</span>
+      </div>
+      <div class="dp-body">
+        <div class="dp-section">
+          <h4>The Core Challenge</h4>
+          <p>Concurrency: 10,000 users trying to book the last 5 seats simultaneously. You need to prevent double-booking without sacrificing performance.</p>
+        </div>
+        <div class="dp-section">
+          <h4>Approaches</h4>
+          <table class="comp-table">
+            <tr><th>Approach</th><th>Mechanism</th><th>Trade-off</th></tr>
+            <tr><td>Pessimistic Locking</td><td>SELECT FOR UPDATE on seat row</td><td>Serialized — safe but slow under load</td></tr>
+            <tr><td>Optimistic Locking</td><td>version column — retry on conflict</td><td>Fast but retry storms under high contention</td></tr>
+            <tr><td>Redis Distributed Lock</td><td>SETNX seat_id with TTL</td><td>Fast, handles contention, but Redis SPOF risk</td></tr>
+            <tr><td>Queue + Reserve</td><td>Virtual queue, 10-min hold TTL</td><td>Best UX — user gets time to pay</td></tr>
+          </table>
+        </div>
+        <div class="dp-section">
+          <h4>Recommended: Temporary Seat Reservation</h4>
+          <ul>
+            <li>User selects seat → Redis: SET seat:show_1:seat_A5 user_1001 EX 600 (10 min)</li>
+            <li>Payment completes → mark seat as BOOKED in PostgreSQL, remove Redis key</li>
+            <li>Timeout → seat auto-released back to available pool</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="design-problem">
+      <div class="dp-header" onclick="toggleDP(this)">
+        <h3>6. News Feed (Facebook/Instagram)</h3>
+        <span class="dp-difficulty diff-med">INTERMEDIATE</span>
+      </div>
+      <div class="dp-body">
+        <div class="dp-section">
+          <h4>Fan-out Strategies</h4>
+          <table class="comp-table">
+            <tr><th>Strategy</th><th>How</th><th>Best for</th></tr>
+            <tr><td>Fan-out on Write</td><td>On post, push to all followers' feeds immediately</td><td>Users with small follower counts</td></tr>
+            <tr><td>Fan-out on Read</td><td>On feed load, fetch and merge followed users' posts</td><td>Celebrity users (millions of followers)</td></tr>
+            <tr><td>Hybrid</td><td>Fan-out on write for normal users, on read for celebrities</td><td>Production (Facebook, Instagram)</td></tr>
+          </table>
+        </div>
+        <div class="dp-section">
+          <h4>Feed Storage</h4>
+          <p>Redis Sorted Set per user: key = "feed:user:1001", score = timestamp. Store post_ids, not full content. Fetch top 20 post_ids → batch fetch post content from cache/DB.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="design-problem">
+      <div class="dp-header" onclick="toggleDP(this)">
+        <h3>7. YouTube / Netflix</h3>
+        <span class="dp-difficulty diff-hard">ADVANCED</span>
+      </div>
+      <div class="dp-body">
+        <div class="dp-section">
+          <h4>Video Upload Pipeline</h4>
+          <div class="vflow" style="gap:4px;">
+            <div class="flow-node fn-yellow">Creator uploads raw video</div>
+            <div class="vflow-arrow">↓</div>
+            <div class="flow-node fn-blue">Object Storage (S3) — raw video</div>
+            <div class="vflow-arrow">↓ triggers</div>
+            <div class="flow-node fn-green">Kafka: video.uploaded event</div>
+            <div class="vflow-arrow">↓</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <div class="flow-node fn-orange" style="font-size:12px;">Transcoding Workers<br><span style="font-size:10px;opacity:0.6;">360p 720p 1080p 4K</span></div>
+              <div class="flow-node fn-purple" style="font-size:12px;">Thumbnail Generator</div>
+              <div class="flow-node fn-blue" style="font-size:12px;">Metadata Indexer</div>
+            </div>
+            <div class="vflow-arrow">↓</div>
+            <div class="flow-node fn-green">CDN (CloudFront) — serve globally</div>
+          </div>
+        </div>
+        <div class="dp-section">
+          <h4>Adaptive Bitrate Streaming (ABR)</h4>
+          <p>Store video in HLS/DASH chunks. Player requests manifest file → selects quality based on current bandwidth → streams chunks. Redis caches popular video metadata. CDN serves video chunks from edge nodes nearest to user.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;" class="alert alert-info">
+      <span class="alert-icon">📚</span>
+      <div>The remaining 8 problems (Uber, Twitter Search, Distributed Cache, Payment Gateway, Banking Ledger, Fraud Detection, Distributed Lock, API Gateway) are covered in detail in the <strong>Fintech Focus</strong> module and through the 30-Day Roadmap exercises.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ FINTECH ══ -->
+  <div id="page-fintech" class="page">
+    <div class="page-eyebrow">MODULE 9 · FINTECH FOCUS</div>
+    <div class="page-title">Fintech & Payment System Interviews</div>
+    <div class="page-subtitle">The design problems and concepts that financial companies specifically probe. This module is your edge.</div>
+
+    <div class="alert alert-danger">
+      <span class="alert-icon">🏦</span>
+      <div><strong>Fintech Interview Reality:</strong> Banks and payment companies care obsessively about: data integrity, idempotency, audit trails, regulatory compliance (PCI-DSS), failure recovery, and "what happens if this crashes mid-transaction?" Practice answering every design question through this lens.</div>
+    </div>
+
+    <div class="design-problem">
+      <div class="dp-header" onclick="toggleDP(this)">
+        <h3>💳 Design a Payment Gateway</h3>
+        <span class="dp-difficulty diff-expert">EXPERT</span>
+      </div>
+      <div class="dp-body">
+        <div class="dp-section">
+          <h4>The Core Challenge: Exactly-Once Payments</h4>
+          <p>If a payment request times out, did it go through? The user retries — you must never charge them twice. Solution: <strong>Idempotency Keys</strong>.</p>
+          <div class="code-block">
+POST /payments
+{
+  <span class="str">"idempotency_key"</span>: <span class="str">"usr-1001-order-9876-attempt-1"</span>,
+  <span class="str">"amount"</span>: <span class="num">1000.00</span>,
+  <span class="str">"currency"</span>: <span class="str">"INR"</span>,
+  <span class="str">"source"</span>: <span class="str">"card_abc123"</span>
+}
+<span class="cm">// Server: check idempotency_key in DB
+// If exists → return cached response (same result)
+// If not → process payment → store key + result</span>
+          </div>
+        </div>
+        <div class="dp-section">
+          <h4>Saga Pattern — Distributed Transactions</h4>
+          <p>Across microservices, you can't use a single DB transaction. Use the Saga pattern:</p>
+          <div class="vflow" style="gap:4px;">
+            <div class="flow-node fn-blue" style="text-align:center;">1. Debit user account → publish PaymentDebited</div>
+            <div class="vflow-arrow">↓</div>
+            <div class="flow-node fn-orange" style="text-align:center;">2. Reserve inventory → publish InventoryReserved</div>
+            <div class="vflow-arrow">↓</div>
+            <div class="flow-node fn-green" style="text-align:center;">3. Create order → publish OrderCreated</div>
+            <div class="vflow-arrow" style="color:var(--accent2);">↓ If step 3 fails</div>
+            <div class="flow-node fn-orange" style="text-align:center;border-color:rgba(255,107,53,0.4);">Compensate: Release inventory → Credit account back</div>
+          </div>
+        </div>
+        <div class="dp-section">
+          <h4>Database Schema (Simplified)</h4>
+          <div class="code-block">
+<span class="kw">accounts</span>: (id, user_id, balance, version, updated_at)
+<span class="kw">transactions</span>: (id, from_account, to_account, amount, status, 
+              idempotency_key, created_at)
+<span class="kw">payment_events</span>: (id, payment_id, event_type, payload, timestamp)
+<span class="cm">-- version column for optimistic locking
+-- payment_events for audit trail and event sourcing</span>
+          </div>
+        </div>
+        <div class="dp-section">
+          <h4>What Fintech Interviewers Probe</h4>
+          <ul>
+            <li>"What if the network fails after debit but before credit?" → Saga compensating transactions</li>
+            <li>"How do you prevent duplicate charges?" → Idempotency keys</li>
+            <li>"How do you ensure your ledger always balances?" → Double-entry accounting, event sourcing</li>
+            <li>"How do you handle PCI compliance?" → Tokenization, never store raw card data</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="design-problem">
+      <div class="dp-header" onclick="toggleDP(this)">
+        <h3>📒 Design a Banking Ledger (Event Sourcing + CQRS)</h3>
+        <span class="dp-difficulty diff-expert">EXPERT</span>
+      </div>
+      <div class="dp-body">
+        <div class="dp-section">
+          <h4>Event Sourcing</h4>
+          <p>Instead of storing current balance (mutable state), store every event that changed it. Current balance = replay all events.</p>
+          <div class="code-block">
+<span class="cm">// Events stored — immutable, append-only</span>
+{ event: <span class="str">"DEPOSIT"</span>,  amount: <span class="num">5000</span>, timestamp: ... }
+{ event: <span class="str">"WITHDRAWAL"</span>, amount: <span class="num">200</span>,  timestamp: ... }
+{ event: <span class="str">"TRANSFER_IN"</span>, amount: <span class="num">1500</span>, timestamp: ... }
+
+<span class="cm">// Current balance = sum of all events</span>
+<span class="cm">// Audit trail is FREE — you have the full history</span>
+<span class="cm">// Can replay to any point in time for debugging</span>
+          </div>
+        </div>
+        <div class="dp-section">
+          <h4>CQRS (Command Query Responsibility Segregation)</h4>
+          <p>Separate write model (commands: debit, credit) from read model (queries: current balance, transaction history). Write to event store → async project to read-optimized views in Redis/PostgreSQL.</p>
+          <div class="flow" style="flex-wrap:wrap;gap:6px;margin-top:10px;justify-content:center;">
+            <div class="flow-node fn-orange">Debit Command</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node fn-blue">Command Handler<br><span style="font-size:10px;opacity:0.6;">validates + writes event</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node fn-purple">Event Store<br><span style="font-size:10px;opacity:0.6;">append-only</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node fn-green">Projections<br><span style="font-size:10px;opacity:0.6;">update read views</span></div>
+          </div>
+        </div>
+        <div class="dp-section">
+          <h4>Double-Entry Accounting</h4>
+          <p>Every financial transaction debits one account and credits another. The sum of all debits must always equal sum of all credits — this is how you verify ledger integrity. Never violate this rule in a banking system design.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="design-problem">
+      <div class="dp-header" onclick="toggleDP(this)">
+        <h3>🚨 Design a Fraud Detection Platform</h3>
+        <span class="dp-difficulty diff-expert">EXPERT</span>
+      </div>
+      <div class="dp-body">
+        <div class="dp-section">
+          <h4>Architecture</h4>
+          <div class="vflow" style="gap:4px;align-items:center;">
+            <div class="flow-node fn-yellow" style="text-align:center;">Transaction Event → Kafka: payments.raw</div>
+            <div class="vflow-arrow">↓</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+              <div class="flow-node fn-orange" style="font-size:12px;">Rule Engine<br><span style="font-size:10px;opacity:0.6;">"velocity > 5/min"</span></div>
+              <div class="flow-node fn-blue" style="font-size:12px;">Stream Processor<br><span style="font-size:10px;opacity:0.6;">Flink / Spark</span></div>
+              <div class="flow-node fn-purple" style="font-size:12px;">ML Model Service<br><span style="font-size:10px;opacity:0.6;">Risk scoring</span></div>
+            </div>
+            <div class="vflow-arrow">↓</div>
+            <div class="flow-node fn-green" style="text-align:center;">Decision Service → APPROVE / DECLINE / REVIEW</div>
+            <div class="vflow-arrow">↓</div>
+            <div style="display:flex;gap:10px;">
+              <div class="flow-node fn-blue" style="font-size:12px;">Alert Ops Team</div>
+              <div class="flow-node fn-orange" style="font-size:12px;">Block Transaction</div>
+              <div class="flow-node fn-yellow" style="font-size:12px;">Audit Log (Kafka)</div>
+            </div>
+          </div>
+        </div>
+        <div class="dp-section">
+          <h4>Features to store in feature store (Redis)</h4>
+          <ul>
+            <li>Transaction velocity: number of transactions in last 1min / 5min / 1hr</li>
+            <li>Geolocation anomaly: user usually pays in Pune, now paying in London</li>
+            <li>Merchant category risk score</li>
+            <li>Device fingerprint change</li>
+            <li>Time-of-day anomaly</li>
+          </ul>
+        </div>
+        <div class="dp-section">
+          <h4>Latency requirement</h4>
+          <p>Fraud decision must happen in &lt;100ms for real-time payment approval. Pre-compute features in Redis. Serve ML model via low-latency inference endpoint (not batch). Rule engine executes in memory.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ CHEATSHEET ══ -->
+  <div id="page-cheatsheet" class="page">
+    <div class="page-eyebrow">MODULE 10 · QUICK REFERENCE</div>
+    <div class="page-title">Interview Cheat Sheet</div>
+    <div class="page-subtitle">Pin this. Review the night before every interview. 2-minute scan before walking into the room.</div>
+
+    <div class="cheat-grid">
+      <div class="cheat-card">
+        <div class="cheat-card-header">
+          <span class="cheat-icon">🗄️</span>
+          <h4 style="color:var(--accent);">Database Cheatsheet</h4>
+        </div>
+        <ul>
+          <li>Payments/Banking → PostgreSQL (ACID)</li>
+          <li>User profiles/Catalog → MongoDB</li>
+          <li>Time-series/Chat → Cassandra</li>
+          <li>Session/Cache → Redis</li>
+          <li>Search → Elasticsearch</li>
+          <li>Graph relationships → Neo4j</li>
+          <li>Analytics/OLAP → Redshift/BigQuery</li>
+        </ul>
+      </div>
+
+      <div class="cheat-card">
+        <div class="cheat-card-header">
+          <span class="cheat-icon">⚡</span>
+          <h4 style="color:var(--accent2);">Caching Cheatsheet</h4>
+        </div>
+        <ul>
+          <li>Read-heavy → Cache-Aside (Redis)</li>
+          <li>Write-through for fresh data</li>
+          <li>Write-back for high-freq non-critical</li>
+          <li>Feed ranking → Sorted Set (ZADD)</li>
+          <li>Session storage → String + TTL</li>
+          <li>Rate limiting → INCR + EXPIRE</li>
+          <li>Distributed lock → SETNX + EX</li>
+        </ul>
+      </div>
+
+      <div class="cheat-card">
+        <div class="cheat-card-header">
+          <span class="cheat-icon">📨</span>
+          <h4 style="color:#a78bfa;">Messaging Cheatsheet</h4>
+        </div>
+        <ul>
+          <li>Event streaming / audit → Kafka</li>
+          <li>Task queue / RPC → RabbitMQ</li>
+          <li>Payments → Exactly-once (Kafka tx)</li>
+          <li>Notifications → Kafka fan-out</li>
+          <li>Dead letter queue for failures</li>
+          <li>Idempotency key for dedup</li>
+          <li>Retry + exponential backoff</li>
+        </ul>
+      </div>
+
+      <div class="cheat-card">
+        <div class="cheat-card-header">
+          <span class="cheat-icon">🌐</span>
+          <h4 style="color:var(--accent4);">Scale Numbers</h4>
+        </div>
+        <ul>
+          <li>1M users → single DB fine</li>
+          <li>10M users → add read replicas</li>
+          <li>100M users → sharding needed</li>
+          <li>1B users → multi-region</li>
+          <li>10K RPS → Redis mandatory</li>
+          <li>100K RPS → Kafka + sharding</li>
+          <li>1M RPS → CDN + edge compute</li>
+        </ul>
+      </div>
+
+      <div class="cheat-card">
+        <div class="cheat-card-header">
+          <span class="cheat-icon">🏦</span>
+          <h4 style="color:var(--accent5);">Fintech Must-Knows</h4>
+        </div>
+        <ul>
+          <li>Idempotency key on every payment</li>
+          <li>Saga pattern for distributed tx</li>
+          <li>Event sourcing for audit trail</li>
+          <li>CQRS for read/write separation</li>
+          <li>Double-entry accounting always</li>
+          <li>Optimistic lock for balance updates</li>
+          <li>Never store raw card data (PCI)</li>
+        </ul>
+      </div>
+
+      <div class="cheat-card">
+        <div class="cheat-card-header">
+          <span class="cheat-icon">🛡️</span>
+          <h4 style="color:var(--accent);">Reliability Patterns</h4>
+        </div>
+        <ul>
+          <li>Circuit Breaker (Resilience4j)</li>
+          <li>Bulkhead — isolate failures</li>
+          <li>Retry with backoff + jitter</li>
+          <li>Timeout on every external call</li>
+          <li>Health checks + readiness probes</li>
+          <li>Graceful degradation</li>
+          <li>Blue-green / canary deploys</li>
+        </ul>
+      </div>
+
+      <div class="cheat-card">
+        <div class="cheat-card-header">
+          <span class="cheat-icon">📐</span>
+          <h4 style="color:var(--accent2);">Interview Steps</h4>
+        </div>
+        <ul>
+          <li>1. Clarify requirements (2-3 min)</li>
+          <li>2. Estimate scale (3-5 min)</li>
+          <li>3. High-level design (5-8 min)</li>
+          <li>4. Deep dive (10-15 min)</li>
+          <li>5. Bottlenecks (5 min)</li>
+          <li>Always state trade-offs</li>
+          <li>Start simple, evolve design</li>
+        </ul>
+      </div>
+
+      <div class="cheat-card">
+        <div class="cheat-card-header">
+          <span class="cheat-icon">🔢</span>
+          <h4 style="color:#a78bfa;">Back-of-Envelope</h4>
+        </div>
+        <ul>
+          <li>1 day = 86,400 sec (~100K sec)</li>
+          <li>1M req/day = ~12 RPS</li>
+          <li>10M req/day = ~120 RPS</li>
+          <li>1B req/day = ~11,500 RPS</li>
+          <li>1 char = 1 byte</li>
+          <li>1 tweet = ~300 bytes</li>
+          <li>1 photo = ~300 KB avg</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="page-eyebrow">TECHNOLOGY QUICK MAP</div>
+    <div style="margin-top:20px;">
+      <div style="margin-bottom:12px;"><span style="font-family:var(--font-mono);font-size:12px;color:var(--text3);">API & COMMUNICATION</span></div>
+      <div>
+        <span class="pill pill-blue">REST — CRUD over HTTP</span>
+        <span class="pill pill-orange">gRPC — internal microservices</span>
+        <span class="pill pill-purple">GraphQL — flexible client queries</span>
+        <span class="pill pill-green">WebSocket — real-time bidirectional</span>
+        <span class="pill pill-yellow">SSE — server push (notifications)</span>
+      </div>
+      <div style="margin:16px 0 12px;"><span style="font-family:var(--font-mono);font-size:12px;color:var(--text3);">STORAGE</span></div>
+      <div>
+        <span class="pill pill-blue">S3 — object/blob storage</span>
+        <span class="pill pill-orange">HDFS — distributed file system</span>
+        <span class="pill pill-purple">EBS — block storage</span>
+        <span class="pill pill-green">Elasticsearch — full-text search</span>
+        <span class="pill pill-yellow">Neo4j — graph data</span>
+      </div>
+      <div style="margin:16px 0 12px;"><span style="font-family:var(--font-mono);font-size:12px;color:var(--text3);">POPULAR FRAMEWORKS</span></div>
+      <div>
+        <span class="pill pill-blue">Spring Boot — microservices (Java)</span>
+        <span class="pill pill-orange">Spring Kafka — Kafka integration</span>
+        <span class="pill pill-purple">Spring Data JPA — ORM / SQL</span>
+        <span class="pill pill-green">Resilience4j — circuit breaker</span>
+        <span class="pill pill-yellow">Spring Security — JWT / OAuth2</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ QUIZ ══ -->
+  <div id="page-quiz" class="page">
+    <div class="page-eyebrow">MODULE 11 · SELF ASSESSMENT</div>
+    <div class="page-title">Knowledge Quiz</div>
+    <div class="page-subtitle">10 questions covering all modules. Answer without looking at the book first. Track your score.</div>
+
+    <div class="quiz-wrap" id="quiz-container">
+
+      <div class="quiz-question" id="q1">
+        <div class="quiz-q-num">QUESTION 01 / 10</div>
+        <div class="quiz-q-text">You're designing a payment system. A user's payment request times out at the network level before receiving a response. What is the primary mechanism to prevent double-charging on retry?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,'q1','wrong')">Use a unique transaction UUID stored in the database</div>
+          <div class="quiz-opt" onclick="answer(this,'q1','correct')">Idempotency key — client sends a unique key per operation; server returns cached result on duplicate</div>
+          <div class="quiz-opt" onclick="answer(this,'q1','wrong')">Use optimistic locking with a version column</div>
+          <div class="quiz-opt" onclick="answer(this,'q1','wrong')">Implement a distributed lock using Redis SETNX</div>
+        </div>
+        <div class="quiz-feedback" id="q1-fb"></div>
+      </div>
+
+      <div class="quiz-question" id="q2">
+        <div class="quiz-q-num">QUESTION 02 / 10</div>
+        <div class="quiz-q-text">Your news feed has 500 million users. Posting to a user with 10 million followers — which strategy prevents the fan-out write from being catastrophically slow?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,'q2','wrong')">Fan-out on write for all users — precompute all feeds</div>
+          <div class="quiz-opt" onclick="answer(this,'q2','wrong')">Store everything in Cassandra, read on demand</div>
+          <div class="quiz-opt" onclick="answer(this,'q2','correct')">Hybrid approach — fan-out on write for normal users, fan-out on read for celebrity users</div>
+          <div class="quiz-opt" onclick="answer(this,'q2','wrong')">Use GraphQL subscriptions to push updates</div>
+        </div>
+        <div class="quiz-feedback" id="q2-fb"></div>
+      </div>
+
+      <div class="quiz-question" id="q3">
+        <div class="quiz-q-num">QUESTION 03 / 10</div>
+        <div class="quiz-q-text">CAP Theorem: Cassandra chooses AP (Available + Partition Tolerant). What does this mean for a fintech application?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,'q3','wrong')">Cassandra is ideal for payment processing — high availability is critical for banks</div>
+          <div class="quiz-opt" onclick="answer(this,'q3','correct')">Cassandra may return stale data — not suitable for balance reads without additional consistency configuration; use PostgreSQL (CP) for money</div>
+          <div class="quiz-opt" onclick="answer(this,'q3','wrong')">Cassandra's AP means it will always show consistent balances</div>
+          <div class="quiz-opt" onclick="answer(this,'q3','wrong')">AP means atomic partitioning — good for banking transactions</div>
+        </div>
+        <div class="quiz-feedback" id="q3-fb"></div>
+      </div>
+
+      <div class="quiz-question" id="q4">
+        <div class="quiz-q-num">QUESTION 04 / 10</div>
+        <div class="quiz-q-text">10,000 requests simultaneously hit your server for the same cache key the moment it expires. What is this problem called and what is the best mitigation?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,'q4','wrong')">Cache miss storm — increase TTL to reduce expiry frequency</div>
+          <div class="quiz-opt" onclick="answer(this,'q4','correct')">Cache stampede / Thundering herd — mitigate with mutex locking or background cache refresh before TTL expires</div>
+          <div class="quiz-opt" onclick="answer(this,'q4','wrong')">Cache invalidation problem — use write-through to prevent misses</div>
+          <div class="quiz-opt" onclick="answer(this,'q4','wrong')">Hot partition problem — shard your cache keys</div>
+        </div>
+        <div class="quiz-feedback" id="q4-fb"></div>
+      </div>
+
+      <div class="quiz-question" id="q5">
+        <div class="quiz-q-num">QUESTION 05 / 10</div>
+        <div class="quiz-q-text">When designing a chat system like WhatsApp, which database is most suitable for storing message history and why?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,'q5','wrong')">PostgreSQL — ACID transactions ensure no message is lost</div>
+          <div class="quiz-opt" onclick="answer(this,'q5','wrong')">MongoDB — flexible document schema handles attachments well</div>
+          <div class="quiz-opt" onclick="answer(this,'q5','correct')">Cassandra — optimised for time-series append-heavy writes, partition by conversation_id for fast range reads</div>
+          <div class="quiz-opt" onclick="answer(this,'q5','wrong')">Redis — in-memory for real-time message delivery</div>
+        </div>
+        <div class="quiz-feedback" id="q5-fb"></div>
+      </div>
+
+      <div class="quiz-question" id="q6">
+        <div class="quiz-q-num">QUESTION 06 / 10</div>
+        <div class="quiz-q-text">Which load balancing algorithm would you choose for a system where servers have different hardware capacities (some 8-core, some 32-core)?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,'q6','wrong')">Round Robin — simple and fair</div>
+          <div class="quiz-opt" onclick="answer(this,'q6','wrong')">IP Hash — ensures session stickiness</div>
+          <div class="quiz-opt" onclick="answer(this,'q6','correct')">Weighted Round Robin — assign higher weights to more powerful servers proportional to capacity</div>
+          <div class="quiz-opt" onclick="answer(this,'q6','wrong')">Random — statistically uniform distribution</div>
+        </div>
+        <div class="quiz-feedback" id="q6-fb"></div>
+      </div>
+
+      <div class="quiz-question" id="q7">
+        <div class="quiz-q-num">QUESTION 07 / 10</div>
+        <div class="quiz-q-text">What is the Saga pattern and when would you use it over a traditional database transaction?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,'q7','wrong')">A caching pattern where data is stored in sagas (time-ordered segments) for fast retrieval</div>
+          <div class="quiz-opt" onclick="answer(this,'q7','wrong')">A distributed consensus algorithm similar to Raft</div>
+          <div class="quiz-opt" onclick="answer(this,'q7','correct')">A sequence of local transactions across microservices, each publishing events. If one fails, compensating transactions undo previous steps. Used when a single 2-phase commit across services is impractical.</div>
+          <div class="quiz-opt" onclick="answer(this,'q7','wrong')">An event replay pattern for recreating state from an audit log</div>
+        </div>
+        <div class="quiz-feedback" id="q7-fb"></div>
+      </div>
+
+      <div class="quiz-question" id="q8">
+        <div class="quiz-q-num">QUESTION 08 / 10</div>
+        <div class="quiz-q-text">Kafka vs RabbitMQ: A fraud detection system needs to consume each payment event across 4 different services (alerting, ML scoring, audit, analytics) — which tool fits best?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,'q8','correct')">Kafka — multiple consumer groups can independently read the same event; supports replay if a consumer is down; high throughput for real-time stream processing</div>
+          <div class="quiz-opt" onclick="answer(this,'q8','wrong')">RabbitMQ — rich routing with exchanges ensures each service gets its message</div>
+          <div class="quiz-opt" onclick="answer(this,'q8','wrong')">Either works — the choice is purely based on team familiarity</div>
+          <div class="quiz-opt" onclick="answer(this,'q8','wrong')">Redis Pub/Sub — lowest latency for real-time event delivery</div>
+        </div>
+        <div class="quiz-feedback" id="q8-fb"></div>
+      </div>
+
+      <div class="quiz-question" id="q9">
+        <div class="quiz-q-num">QUESTION 09 / 10</div>
+        <div class="quiz-q-text">In Event Sourcing, how do you get the current balance of a bank account?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,'q9','wrong')">Read the 'balance' column from the accounts table</div>
+          <div class="quiz-opt" onclick="answer(this,'q9','correct')">Replay all events (deposits, withdrawals, transfers) for that account from the event store, or read from a pre-computed projection</div>
+          <div class="quiz-opt" onclick="answer(this,'q9','wrong')">Read the latest snapshot from a time-series database</div>
+          <div class="quiz-opt" onclick="answer(this,'q9','wrong')">Query the CQRS command model for the current state</div>
+        </div>
+        <div class="quiz-feedback" id="q9-fb"></div>
+      </div>
+
+      <div class="quiz-question" id="q10">
+        <div class="quiz-q-num">QUESTION 10 / 10</div>
+        <div class="quiz-q-text">A senior engineer is asked "Design BookMyShow." After 2 minutes of drawing boxes, the interviewer interrupts to ask about concurrent seat booking. What's the red flag in this engineer's approach?</div>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="answer(this,'q10','wrong')">Using microservices instead of a monolith for a ticketing system</div>
+          <div class="quiz-opt" onclick="answer(this,'q10','wrong')">Not including a CDN in the architecture</div>
+          <div class="quiz-opt" onclick="answer(this,'q10','correct')">Skipped the clarification and estimation phase — jumped to drawing without understanding scale, feature scope, or identifying the core challenge (concurrency). Always clarify first.</div>
+          <div class="quiz-opt" onclick="answer(this,'q10','wrong')">Not mentioning Kafka for async seat confirmation</div>
+        </div>
+        <div class="quiz-feedback" id="q10-fb"></div>
+      </div>
+
+    </div>
+
+    <div class="quiz-score-banner" id="score-banner">
+      <h3 id="score-title">—</h3>
+      <p id="score-desc">—</p>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<div class="site-footer">
+  Created by <a href="https://github.com/surajbunde" target="_blank">Suraj Bunde</a> | <a href="index.html">Interactive Engineering Guides</a>
+</div>
+
+<script>
+  // ── NAVIGATION ──
+  const pages = ['home','roadmap','scalability','databases','caching','messaging','distributed','interview','problems','fintech','cheatsheet','quiz'];
+  let visitedPages = new Set(['home']);
+
+  function showPage(id) {
+    pages.forEach(p => {
+      const el = document.getElementById('page-' + p);
+      if (el) el.classList.toggle('active', p === id);
+    });
+    document.querySelectorAll('.nav-item').forEach(n => {
+      n.classList.toggle('active', n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'"));
+    });
+    visitedPages.add(id);
+    updateProgress();
+    window.scrollTo(0,0);
+    if (window.innerWidth < 900) closeSidebar();
+  }
+
+  function updateProgress() {
+    const pct = Math.round((visitedPages.size / pages.length) * 100);
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+
+  // ── SIDEBAR MOBILE ──
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('show');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+  }
+
+  // ── ACCORDION ──
+  function toggleAccordion(header) {
+    const body = header.nextElementSibling;
+    const isOpen = header.classList.contains('open');
+    header.classList.toggle('open', !isOpen);
+    body.classList.toggle('open', !isOpen);
+  }
+
+  // ── DESIGN PROBLEMS ──
+  function toggleDP(header) {
+    const body = header.nextElementSibling;
+    body.classList.toggle('open');
+  }
+
+  // ── QUIZ ──
+  const feedbackTexts = {
+    q1: { correct: "✅ Correct! Idempotency keys are the industry standard. The client generates a unique key per intent (not per retry), and the server caches the result. This is mandatory in any payment API design.", wrong: "❌ While UUID tracking and optimistic locks are useful elsewhere, the idempotency key specifically addresses the client-side retry problem for payments." },
+    q2: { correct: "✅ Correct! Facebook and Instagram use exactly this hybrid approach. For a celebrity with 1M+ followers, fan-out on write would create 1M+ writes per post. Fan-out on read (with smart caching) is far more efficient for celebrities.", wrong: "❌ The challenge is celebrity accounts — pre-computing feed for millions of followers per post would overwhelm the system. The hybrid strategy is the production answer." },
+    q3: { correct: "✅ Correct! AP systems like Cassandra prioritise availability over consistency. During a network partition, Cassandra may serve stale data. For money balances (where you absolutely need the correct number), PostgreSQL with strong consistency is the right choice.", wrong: "❌ AP means Available + Partition Tolerant — it sacrifices Consistency. This is dangerous for financial data where stale reads could cause overdrafts or incorrect balances." },
+    q4: { correct: "✅ Correct! Cache stampede (thundering herd) is a critical pattern to know. Mutex locking allows only one process to rebuild the cache while others wait; background refresh proactively rebuilds before expiry — both are valid mitigations.", wrong: "❌ This is called a cache stampede or thundering herd problem. Simply increasing TTL doesn't solve the root problem — the fix is controlling who rebuilds the cache." },
+    q5: { correct: "✅ Correct! Cassandra is purpose-built for this: time-series append-heavy workloads. Partitioning by conversation_id means all messages for a chat are co-located, enabling fast range queries by timestamp. This is actually how WhatsApp and Facebook Messenger work.", wrong: "❌ Cassandra is the right answer here. PostgreSQL struggles at chat-scale write throughput; MongoDB's BSON overhead adds up; Redis is for real-time delivery (message broker), not persistent history." },
+    q6: { correct: "✅ Correct! Weighted Round Robin lets you assign weight=4 to the 32-core server and weight=1 to the 8-core server, distributing load proportionally to capacity. This is the standard approach for heterogeneous server fleets.", wrong: "❌ Round Robin treats all servers equally — wasting the capacity of your 32-core servers. Weighted Round Robin is the right choice for heterogeneous fleets." },
+    q7: { correct: "✅ Correct! The Saga pattern is the distributed systems answer to the lack of cross-service ACID transactions. Choreography-based Sagas (via events) and Orchestration-based Sagas (via a saga orchestrator) are both valid. It's essential knowledge for fintech microservices.", wrong: "❌ The Saga pattern is specifically about managing distributed transactions across microservices with compensating actions. It's a must-know for payment system interviews." },
+    q8: { correct: "✅ Correct! Kafka's consumer group model allows each of the 4 services to independently maintain their own offset and consume every event. Message replay is critical for fraud systems (if a model is upgraded, replay historical events). RabbitMQ would require 4 separate queue copies.", wrong: "❌ Kafka is the right choice because multiple consumer groups can read the same message independently, and messages are retained for replay. RabbitMQ deletes messages after consumption." },
+    q9: { correct: "✅ Correct! In Event Sourcing, the event log is the source of truth. You reconstruct current state by replaying events. In production, you'd maintain a pre-computed projection (read model via CQRS) so you don't replay millions of events on every balance query.", wrong: "❌ In Event Sourcing, there is no mutable 'balance' column. State is derived by replaying all events. In practice, a CQRS projection pre-computes and caches the current balance so you don't replay constantly." },
+    q10: { correct: "✅ Correct! Jumping straight to the diagram is the most common senior engineer failure in system design interviews. The 2-3 minutes of clarification reveals the key constraint (concurrent booking) that shapes your entire design. Without it, you're solving the wrong problem.", wrong: "❌ The core failure was not clarifying requirements upfront. If you'd asked 'What's the peak concurrent users during a popular event release?' the interviewer would have directed you straight to the concurrency problem." }
+  };
+
+  let scores = {};
+  let answeredCount = 0;
+
+  function answer(optEl, qId, result) {
+    if (scores[qId] !== undefined) return; // already answered
+    scores[qId] = result === 'correct' ? 1 : 0;
+    answeredCount++;
+
+    const opts = optEl.parentElement.querySelectorAll('.quiz-opt');
+    opts.forEach(o => {
+      o.classList.add('disabled');
+      if (o === optEl) o.classList.add(result === 'correct' ? 'correct' : 'wrong');
+    });
+
+    const fb = document.getElementById(qId + '-fb');
+    fb.textContent = feedbackTexts[qId][result === 'correct' ? 'correct' : 'wrong'];
+    fb.className = 'quiz-feedback ' + (result === 'correct' ? 'correct-fb' : 'wrong-fb');
+    fb.style.display = 'block';
+
+    if (answeredCount === 10) showScore();
+  }
+
+  function showScore() {
+    const total = Object.values(scores).reduce((a,b) => a+b, 0);
+    const banner = document.getElementById('score-banner');
+    banner.style.display = 'block';
+    const titles = {10:'Perfect Score! 🎉', 9:'Excellent! Almost perfect 🌟', 8:'Great work! Strong foundation 💪', 7:'Good — review weaker areas 📖', 6:'Decent — revisit Fintech & Distributed modules 🔄'};
+    const descs = {10:'You are ready for Senior Engineer system design interviews at top tech companies and fintech firms.', 9:'Just one miss — you have a very solid grasp. Review the concept you missed and you are interview-ready.', 8:'Two misses — solid overall. Focus revision on those two topics before your interviews.', 7:'Good foundation. Spend extra time on CAP theorem, Kafka delivery guarantees, and payment system patterns.', 6:'Keep going! Focus on Distributed Systems and Fintech Focus modules first. Retake in a few days.'};
+    const key = Math.min(total, 6);
+    document.getElementById('score-title').textContent = `${total}/10 — ${titles[total] || titles[key]}`;
+    document.getElementById('score-desc').textContent = descs[total] || descs[key];
+    banner.scrollIntoView({behavior:'smooth'});
+  }
+
+  // initialise
+  updateProgress();
+</script>
+</body>
+</html>
