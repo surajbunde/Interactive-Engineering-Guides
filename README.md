@@ -6,17 +6,58 @@
 
 ---
 
-## 💡 Why This Project Exists
+## 💡 What This Project Is
 
-Engineers repeatedly spend time and AI credits generating similar learning material for topics such as Kafka, Redis, System Design, JVM Internals, and Database Internals.
+Interactive study guides designed to help engineers learn complex backend and distributed systems topics through:
 
-This project aims to provide **high-quality, interactive learning resources** that anyone can use and learn from.
+- 📚 Structured learning paths
+- 🎨 Visual explanations and diagrams
+- 🎯 Interview-focused questions and discussions
+- ⚙️ Production-oriented examples
+- 📈 Beginner → Advanced progression
 
-The goal is not to replace official documentation, but to provide structured learning paths that bridge the gap between:
+> These guides are intended to **complement** official documentation, courses, and hands-on practice.
 
-- 🟢 Beginner understanding
-- 🟡 Production engineering knowledge
-- 🔵 Interview readiness
+---
+
+## 🎁 What You Get
+
+| Feature | Description |
+|---------|-------------|
+| 📦 **Self-contained HTML guides** | No installation required — just open in your browser |
+| 📡 **Offline-friendly** | Learn anywhere, no internet needed after first load |
+| 🔍 **Search & progress tracking** | Find content fast and track your learning journey |
+| 🏗️ **Architecture diagrams** | Visual summaries of complex system designs |
+| 💬 **Interview Q&A** | Practice questions with detailed explanations |
+| 🧠 **System design discussions** | Deep dives into trade-offs and real-world patterns |
+| 🔄 **Consistent experience** | Same quality and format across all topics |
+
+---
+
+## 🚫 What This Project Is Not
+
+- ❌ A replacement for official documentation
+- ❌ A substitute for hands-on engineering experience
+- ❌ A certification program
+- ❌ The only source you should use when learning a technology
+
+> Whenever possible, readers should also explore **official documentation**, **real-world projects**, **production case studies**, and **community discussions**.
+
+---
+
+## 🤔 Why This Exists
+
+Modern AI tools can generate study material on demand.
+
+However, engineers often spend significant time:
+
+- 🧩 Designing prompts
+- ✏️ Refining outputs
+- 📁 Organizing content
+- 🎨 Building diagrams
+- 🔄 Maintaining consistency across topics
+
+> This project aims to provide a collection of **ready-to-use study resources** that can be learned from immediately, while remaining fully transparent about their purpose as educational guides.
 
 ---
 
@@ -46,18 +87,6 @@ The goal is not to replace official documentation, but to provide structured lea
 | 🧩 **Microservices Patterns** | `PLANNED` |
 | 🌐 **API Gateway & Service Mesh** | `PLANNED` |
 | 🐧 **Linux Internals for Backend Engineers** | `PLANNED` |
-
----
-
-## ✨ Features
-
-- 🖥️ **Interactive HTML guides** — no installation required
-- 🎨 **Visual architecture diagrams** — see the big picture
-- 🎯 **Interview-focused content** — ready for real interviews
-- 🌍 **Real-world engineering examples** — learn from production patterns
-- 📈 **Beginner → Advanced progression** — grow at your pace
-- 📦 **Self-contained offline-friendly files** — learn anywhere
-- 🚀 **Just open in your browser** — zero setup
 
 ---
 
