@@ -137,6 +137,92 @@ body {
 .footer a:hover {
   text-decoration: underline;
 }
+/* ── INFO SECTIONS ── */
+.section-row {
+  max-width: 900px;
+  width: 100%;
+  margin-bottom: 48px;
+}
+.section-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+.section-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+}
+.section-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+.section-card ul {
+  list-style: none;
+  padding: 0;
+}
+.section-card ul li {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.8;
+  padding-left: 20px;
+  position: relative;
+}
+.section-card ul li::before {
+  content: attr(data-icon);
+  position: absolute;
+  left: 0;
+  font-size: 13px;
+}
+.section-card .note {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(108,99,255,0.06);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+}
+.section-card .not-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+.section-card .not-list li {
+  background: rgba(248,113,113,0.08);
+  border: 1px solid rgba(248,113,113,0.15);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: #f87171;
+}
+.section-card .why-list li {
+  padding-left: 24px;
+}
+.section-card .why-list li::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+@media(max-width: 600px) {
+  .section-card { padding: 20px; }
+  .section-card .not-list { flex-direction: column; }
+}
 </style>
 </head>
 <body>
@@ -145,6 +231,64 @@ body {
   <div class="hero-badge">Interactive Learning</div>
   <h1>Interactive Engineering Guides</h1>
   <p>A collection of interactive study guides designed to help engineers learn complex backend and distributed systems topics through visual explanations, architecture diagrams, and real-world examples.</p>
+</div>
+
+<div class="section-row">
+  <div class="section-label">What This Project Is</div>
+  <div class="section-card">
+    <h3>Interactive study guides for backend & distributed systems</h3>
+    <ul>
+      <li data-icon="📚">Structured learning paths</li>
+      <li data-icon="🎨">Visual explanations and diagrams</li>
+      <li data-icon="🎯">Interview-focused questions and discussions</li>
+      <li data-icon="⚙️">Production-oriented examples</li>
+      <li data-icon="📈">Beginner → Advanced progression</li>
+    </ul>
+    <div class="note">These guides are intended to <strong>complement</strong> official documentation, courses, and hands-on practice.</div>
+  </div>
+</div>
+
+<div class="section-row">
+  <div class="section-label">What You Get</div>
+  <div class="section-card">
+    <ul>
+      <li data-icon="📦">Self-contained HTML guides — no installation required</li>
+      <li data-icon="📡">Offline-friendly — learn anywhere</li>
+      <li data-icon="🔍">Search & progress tracking</li>
+      <li data-icon="🏗️">Architecture diagrams and visual summaries</li>
+      <li data-icon="💬">Interview Q&A with detailed explanations</li>
+      <li data-icon="🧠">System design discussions — trade-offs and real-world patterns</li>
+      <li data-icon="🔄">Consistent experience across all topics</li>
+    </ul>
+  </div>
+</div>
+
+<div class="section-row">
+  <div class="section-label">What This Project Is Not</div>
+  <div class="section-card">
+    <ul class="not-list">
+      <li>❌ A replacement for official documentation</li>
+      <li>❌ A substitute for hands-on experience</li>
+      <li>❌ A certification program</li>
+      <li>❌ The only source you should use</li>
+    </ul>
+    <div class="note">Whenever possible, explore <strong>official docs</strong>, <strong>real-world projects</strong>, <strong>production case studies</strong>, and <strong>community discussions</strong>.</div>
+  </div>
+</div>
+
+<div class="section-row">
+  <div class="section-label">Why This Exists</div>
+  <div class="section-card">
+    <h3>Modern AI tools can generate study material — but engineers waste hours organizing it</h3>
+    <ul class="why-list">
+      <li data-icon="">Designing prompts</li>
+      <li data-icon="">Refining outputs</li>
+      <li data-icon="">Organizing content</li>
+      <li data-icon="">Building diagrams</li>
+      <li data-icon="">Maintaining consistency across topics</li>
+    </ul>
+    <div class="note">This project provides <strong>ready-to-use study resources</strong> you can learn from immediately — fully transparent about their purpose as educational guides.</div>
+  </div>
 </div>
 
 <div class="guides">
