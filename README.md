@@ -8,6 +8,8 @@
 
 ## 💡 What This Project Is
 
+A structured way to get interview-ready on backend/distributed systems topics fast — especially the ones you know conceptually but haven't used hands-on in production. Built from real target-company JDs (fintech, MNC, product companies), organized for how interviews actually probe (concepts → tradeoffs → failure modes → "how would you design X").
+
 Interactive study guides designed to help engineers learn complex backend and distributed systems topics through:
 
 - 📚 Structured learning paths
@@ -35,6 +37,8 @@ Interactive study guides designed to help engineers learn complex backend and di
 ---
 
 ## 🚫 What This Project Is Not
+
+A replacement for official docs, a substitute for actually running Kafka/Redis in a real system, or a certification. Think of it as compressing "what would I read across 10 blog posts and 3 YouTube videos to sound credible discussing X" into one consistent, navigable place.
 
 - ❌ A replacement for official documentation
 - ❌ A substitute for hands-on engineering experience
